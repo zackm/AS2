@@ -1,6 +1,7 @@
 Dist/
 glm/
 Makefile
+as2
 .DS_Store
 
 # Compiled Object files
