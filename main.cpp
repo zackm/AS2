@@ -88,11 +88,15 @@
 #include <vector>
 #include <iostream>
 
-#include "Dist/FreeImage.h"
+#include "Film.h"
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
+	if (argc < 2) {
+		cout << "No filname given. Terminating" << endl;
+		exit(1);
+	}
 	std::string filename = argv[1];
 	cout << "Filename " << filename << " found." << endl;
 	int WIDTH = 400;
@@ -131,27 +135,16 @@ int main(int argc, char *argv[]) {
     }
 	// End Arg Parser
 
-	FreeImage_Initialise();
-	int BitsPerPixel = 24;
-	FIBITMAP * bitmap = FreeImage_Allocate(WIDTH, HEIGHT, BitsPerPixel);
-	RGBQUAD color;
-
-	if (!bitmap) 
-		exit(1); // There was an error!
+    int BitsPerPixel = 24;
+    Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel);
 
 	for (int i=0; i < WIDTH; i++) {
 		for (int j=0; j < HEIGHT; j++) {
-			color.rgbRed = 0;
-			color.rgbGreen = (double) i / WIDTH * 255.0;
-			color.rgbBlue = (double) j / HEIGHT * 255.0;
-			FreeImage_SetPixelColor(bitmap, i, j, &color);
+			canvas.commit(i, j, 1.0f); // color means nothing yet
 		}
 	}
 
-	if (FreeImage_Save(FIF_PNG, bitmap, "test.png", 0)) 
-		cout << "Image successfully saved!" << endl;
-
-	FreeImage_DeInitialise();
+	canvas.writeImage();
 
 	return 0;
 }

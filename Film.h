@@ -1,8 +1,13 @@
 /* Film header */
+#include "Dist/FreeImage.h"
 
 class Film
 {
 public:
-	void printPixel(int,int,float);
+	FIBITMAP * bitmap;
+	int BitsPerPixel;
+
+	Film(int,int,int);
+	void commit(int,int,float);
 	void writeImage();
 };
