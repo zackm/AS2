@@ -1,10 +1,10 @@
-#include "glm/glm.h"
+#include "glm/glm.hpp"
 
-class Raytracer {
+class Raytracer{
 public:
 	int maxdepth;
 
-	Raytracer(){};
+	Raytracer(){maxdepth = 5;};
 	Raytracer(int);
 	void trace(Ray, int, glm::vec3);
 };

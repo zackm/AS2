@@ -115,8 +115,8 @@ int main(int argc, char *argv[]) {
 	cout << "Filename " << filename << " found." << endl;
 	int WIDTH = 400;
 	int HEIGHT = 400;
-	std::list<Light> lights;
-	std::vector<Primitive*> primitive_list;
+	//std::list<Light> lights;
+	//std::vector<Primitive*> primitive_list;
 
 	// Arg Parser
 	std::ifstream inpfile(filename.c_str());
@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
     }
 	// End Arg Parser
 
-    Primitive collection pc(primitive_list);
+    //Primitive collection pc(primitive_list);
     int BitsPerPixel = 24;
     Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel);
     Camera c;

@@ -7,4 +7,4 @@ public:
 	Sampler(){};
 	Sampler(int,int);
 	bool generateSample(Sample);
-}
+};

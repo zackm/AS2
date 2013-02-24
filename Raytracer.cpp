@@ -1,4 +1,8 @@
 #include "Raytracer.h"
+#include "Ray.h"
+#include <list>
+
+using namespace std;
 
 Raytracer::Raytracer(int d) {
 	maxdepth = d;

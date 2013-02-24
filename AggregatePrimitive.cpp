@@ -1,4 +1,4 @@
-include "AggregatePrimitive.h"
+#include "AggregatePrimitive.h"
 
 AggregatePrimitive::AggregatePrimitive(std::vector<Primitive*> p_vector) {
 	list = p_vector;
