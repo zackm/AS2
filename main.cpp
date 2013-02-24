@@ -88,6 +88,9 @@
 #include <vector>
 #include <iostream>
 
+#include <list>
+
+// look into pragma once
 #ifndef __FILM_H__
 #define __FILM_H__
 #include "Film.h"
@@ -97,7 +100,7 @@
 #define __CAMERA_H__
 #include "Camera.h"
 #endif
-	
+
 #include "Scene.h"
 #include "Sample.h"
 
@@ -112,6 +115,9 @@ int main(int argc, char *argv[]) {
 	cout << "Filename " << filename << " found." << endl;
 	int WIDTH = 400;
 	int HEIGHT = 400;
+	std::list<Light> lights;
+	std::vector<Primitive*> primitive_list;
+
 	// Arg Parser
 	std::ifstream inpfile(filename.c_str());
 	if(!inpfile.is_open()) {
@@ -146,6 +152,7 @@ int main(int argc, char *argv[]) {
     }
 	// End Arg Parser
 
+    Primitive collection pc(primitive_list);
     int BitsPerPixel = 24;
     Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel);
     Camera c;
