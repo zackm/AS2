@@ -13,7 +13,7 @@ Scene::Scene(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg, 
 	height = h;
 }
 
-Scene::render(Camera c, Film kodak) { // add raytracer arg back
+void Scene::render(Camera c, Film kodak) { // add raytracer arg back
 	Sample sample(0,0);
 	Ray ray;
 	glm::vec3 color;
@@ -24,8 +24,8 @@ Scene::render(Camera c, Film kodak) { // add raytracer arg back
 			float centerx = width / 2;
 			float centery = height / 2;
 			// alternative formula in lecture slides
-			float pos[2] = { ((sample.x - centerx) / width ) * (UR - UL),
-							 ((sample.y - centery) / height) * (UR - LR) };
+			float pos[2] = { ((sample.x - centerx) / width ) * (UR[0] - UL[0]),
+							 ((sample.y - centery) / height) * (UR[1] - LR[1]) };
 			c.generateRay(pos, &ray, eye_position);
 			color[0] = 1.0f;
 			color[1] = 0.0f;

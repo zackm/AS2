@@ -1,6 +1,10 @@
 /* Film class that handles image output. */
 
+#ifndef __FILM_H__
+#define __FILM_H__
 #include "Film.h"
+#endif
+
 #include "Dist/FreeImage.h"
 #include <iostream>
 #include "glm/glm.hpp"

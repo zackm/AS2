@@ -88,11 +88,18 @@
 #include <vector>
 #include <iostream>
 
+#ifndef __FILM_H__
+#define __FILM_H__
 #include "Film.h"
+#endif
+
+#ifndef __CAMERA_H__
+#define __CAMERA_H__
 #include "Camera.h"
+#endif
+	
 #include "Scene.h"
 #include "Sample.h"
-#include "Ray.h"
 
 using namespace std;
 

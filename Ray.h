@@ -6,4 +6,4 @@ public:
 
 	Ray(){};
 	Ray(glm::vec3, glm::vec3, float, float);
-}
+};

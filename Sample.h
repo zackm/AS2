@@ -4,4 +4,4 @@ public:
 
 	Sample(){};
 	Sample(float,float);
-}
+};
