@@ -35,7 +35,7 @@ bool Sphere::intersect(Ray& ray, float* thit,LocalGeo* local){
 
 		local->point = ray.position+(*thit)*ray.direction;
 		glm::vec3 sphere_vec = local->point-center;
-		local->normal = sphere_vec/glm::dot(sphere_vec,sphere_vec);
+		local->normal = sphere_vec/glm::sqrt(glm::dot(sphere_vec,sphere_vec));
 		return true;
 		}
 	}
