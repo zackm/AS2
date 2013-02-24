@@ -6,5 +6,5 @@ public:
 
 	Raytracer(){maxdepth = 5;};
 	Raytracer(int);
-	void trace(Ray, int, glm::vec3);
+	void trace(Ray&, int, glm::vec3*);
 };

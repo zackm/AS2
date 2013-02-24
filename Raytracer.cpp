@@ -1,5 +1,8 @@
+#pragma once
 #include "Raytracer.h"
 #include "Ray.h"
+#include "Shape.h"
+#include "BRDF.h"
 #include <list>
 
 using namespace std;
@@ -11,8 +14,9 @@ Raytracer::Raytracer(int d) {
 void Raytracer::trace(Ray &r, int depth, glm::vec3 *color) {
 
 	float thit;
-	Intersection in;
-	if (depth > maxdepth || !primitive.intersect(ray, &thit, &in)) {
+	LocalGeo local;
+	//Intersection in;
+	if (depth > maxdepth || !primitive.intersect(&r, &thit, &local)) {
 		color[0] = 0;
 		color[1] = 0;
 		color[2] = 0;
