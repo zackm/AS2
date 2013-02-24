@@ -3,6 +3,7 @@
 #include "Film.h"
 #include "Dist/FreeImage.h"
 #include <iostream>
+#include "glm/glm.hpp"
 
 using namespace std;
 
@@ -11,13 +12,12 @@ Film::Film(int width, int height, int BitsPerPixel) {
 	bitmap = FreeImage_Allocate(width, height, BitsPerPixel);
 }
 
-void Film::commit(int x, int y, float someColor) {
-	// needs to be changed to actually handle colors
-	RGBQUAD color;
-	color.rgbRed = 0;
-	color.rgbGreen = (double) x / 400 * 255.0;
-	color.rgbBlue = (double) y / 400 * 255.0;
-	FreeImage_SetPixelColor(bitmap, x, y, &color);
+void Film::commit(int x, int y, glm::vec3 color) {
+	RGBQUAD free_image_color;
+	free_image_color.rgbRed = color[0] * 255.0f;
+	free_image_color.rgbGreen = color[1] * 255.0f;
+	free_image_color.rgbBlue = color[2] * 255.0f;
+	FreeImage_SetPixelColor(bitmap, x, y, &free_image_color);
 
 	return;
 }

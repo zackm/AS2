@@ -89,6 +89,10 @@
 #include <iostream>
 
 #include "Film.h"
+#include "Camera.h"
+#include "Scene.h"
+#include "Sample.h"
+#include "Ray.h"
 
 using namespace std;
 
@@ -137,14 +141,14 @@ int main(int argc, char *argv[]) {
 
     int BitsPerPixel = 24;
     Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel);
-
-	for (int i=0; i < WIDTH; i++) {
-		for (int j=0; j < HEIGHT; j++) {
-			canvas.commit(i, j, 1.0f); // color means nothing yet
-		}
-	}
-
-	canvas.writeImage();
+    Camera c;
+    glm::vec3 eye(0.0f,0.0f,0.0f);
+    glm::vec3 UL(-1.0f,1.0f,-1.0f);
+    glm::vec3 UR(1.0f,1.0f,-1.0f);
+    glm::vec3 LL(1.0f,-1.0f,-1.0f);
+    glm::vec3 LR(-1.0f,-1.0f,-1.0f);
+    Scene s(eye,UL,UR,LL,LR,WIDTH,HEIGHT);
+    s.render(c,canvas);
 
 	return 0;
 }
