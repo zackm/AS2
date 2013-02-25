@@ -10,7 +10,7 @@ public:
 	Primitive(void);
 	virtual bool intersect(Ray&,float*,Intersection*);
 	virtual bool intersect(Ray&);
-	void getRBDF(LocalGeo&,BRDF* brdf);
+	void getBRDF(LocalGeo&,BRDF* brdf);
 	~Primitive(void);
 };
 
