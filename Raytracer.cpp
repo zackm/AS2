@@ -17,7 +17,14 @@ void Raytracer::trace(Ray &r, int depth, glm::vec3 *color) {
 	float thit;
 	LocalGeo local;
 	//Intersection in;
-	if (depth > maxdepth || !primitive.intersect(&r, &thit, &local)) {
+	if (depth > maxdepth) {
+		color[0] = 0;
+		color[1] = 0;
+		color[2] = 0;
+		return
+	}
+	// I think primitive is referring to aggregate primitive
+	if (!primitive.intersect(&r, &thit, &local)) {
 		color[0] = 0;
 		color[1] = 0;
 		color[2] = 0;
