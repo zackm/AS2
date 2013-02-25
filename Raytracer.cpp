@@ -3,6 +3,7 @@
 #include "Ray.h"
 #include "Shape.h"
 #include "BRDF.h"
+#include "Light.h"
 #include <list>
 
 using namespace std;
@@ -12,7 +13,7 @@ Raytracer::Raytracer(int d) {
 }
 
 void Raytracer::trace(Ray &r, int depth, glm::vec3 *color) {
-
+	//for each primitive in list of primitives
 	float thit;
 	LocalGeo local;
 	//Intersection in;
