@@ -31,4 +31,6 @@ public:
 	void add_shape(Shape *);
 	void add_light(Light *);
 	void trace(Ray &, int, glm::vec3 *);
+	bool intersect_checker(Ray&);
+	glm::vec3 shading(LocalGeo, BRDF, Ray, glm::vec3);
 };

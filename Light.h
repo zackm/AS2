@@ -10,7 +10,7 @@ public:
 	glm::vec3 position;
 	glm::vec3 color;
 	virtual void generateLightRay(LocalGeo& local,Ray* lray,glm::vec3* lcolor){};
-	Light(glm::vec3 *, glm::vec3 *);
+	Light(glm::vec3&, glm::vec3&);
 	Light(void){};
 	~Light(void){};
 };
