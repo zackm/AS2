@@ -102,7 +102,15 @@
 #endif
 
 #include "Scene.h"
-#include "Sample.h"
+
+#pragma once
+#include "Sphere.h"
+
+#pragma once
+#include "DirectionalLight.h"
+
+#pragma once
+#include "PointLight.h"
 
 using namespace std;
 
@@ -118,6 +126,7 @@ int main(int argc, char *argv[]) {
 	//std::list<Light> lights;
 	//std::vector<Primitive*> primitive_list;
 
+	Scene s;
 	// Arg Parser
 	std::ifstream inpfile(filename.c_str());
 	if(!inpfile.is_open()) {
@@ -152,10 +161,10 @@ int main(int argc, char *argv[]) {
 			//sphere x y z radius
 			//  Deﬁnes a sphere with a given position and radius.
 			else if(!splitline[0].compare("sphere")) {
-				x = atof(splitline[1].c_str())
-				y = atof(splitline[1].c_str())
-				z = atof(splitline[1].c_str())
-				r = atof(splitline[4].c_str())
+				float x = atof(splitline[1].c_str());
+				float y = atof(splitline[1].c_str());
+				float z = atof(splitline[1].c_str());
+				float r = atof(splitline[4].c_str());
 				// Create new sphere:
 				//   Store 4 numbers
 				//   Store current property values
@@ -166,25 +175,25 @@ int main(int argc, char *argv[]) {
 			//directional x y z r g b
 			//  The direction to the light source, and the color, as in OpenGL.
 			else if(!splitline[0].compare("directional")) {
-				x = atof(splitline[1].c_str()),
-				y = atof(splitline[2].c_str()),
-				z = atof(splitline[3].c_str()));
-				r = atof(splitline[4].c_str()),
-				g = atof(splitline[5].c_str()),
-				b = atof(splitline[6].c_str()));
+				float x = atof(splitline[1].c_str());
+				float y = atof(splitline[2].c_str());
+				float z = atof(splitline[3].c_str());
+				float r = atof(splitline[4].c_str());
+				float g = atof(splitline[5].c_str());
+				float b = atof(splitline[6].c_str());
 				s.add_light(DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
 			}
 			
 			//point x y z r g b
 			//  The location of a point source and the color, as in OpenGL.
 			else if(!splitline[0].compare("point")) {
-				x = atof(splitline[1].c_str()),
-				y = atof(splitline[2].c_str()),
-				z = atof(splitline[3].c_str()));
-				r = atof(splitline[4].c_str()),
-				g = atof(splitline[5].c_str()),
-				b = atof(splitline[6].c_str()));
-				s.add_light(PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
+				float x = atof(splitline[1].c_str());
+				float y = atof(splitline[2].c_str());
+				float z = atof(splitline[3].c_str());
+				float r = atof(splitline[4].c_str());
+				float g = atof(splitline[5].c_str());
+				float b = atof(splitline[6].c_str());
+				// s.add_light(PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
 			}			
     	}
     }
@@ -203,9 +212,7 @@ int main(int argc, char *argv[]) {
 
 	Camera c(pos,dir,up,fov);
 	c.cornerVectors(&UL,&UR,&LL,&LR,WIDTH,HEIGHT);
-	// Need to create scene variable before parsing args.
-	// Add lights/shapes/coordinates/image size as they are parsed.
-    Scene s(eye,UL,UR,LL,LR,WIDTH,HEIGHT);
+    s.set_params(eye,UL,UR,LL,LR,WIDTH,HEIGHT,1);
     s.render(c,canvas);
 
 	return 0;

@@ -7,7 +7,7 @@
 #include "localGeo.h"
 #include "Shape.h"
 
-class Sphere : public Shape{
+class Sphere : public Shape {
 public:
 	glm::vec3 center; //assume these are in world coordinates, not pixel coordinates.
 	float radius;

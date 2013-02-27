@@ -21,8 +21,10 @@ Sphere::Sphere(glm::vec3 arg_center, float arg_radius){
 
 bool Sphere::intersect(Ray& ray, float* thit,LocalGeo* local){
 	if (!intersect(ray)){
+		cout << "*" << endl;
 		return false;
 	}else{
+		cout << "$" << endl;
 		float a = glm::dot(ray.direction, ray.direction);
 
 		glm::vec3 b_vec = ray.position-center;

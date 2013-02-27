@@ -1,5 +1,7 @@
 #include "Scene.h"
-#include "Sample.h"
+
+#pragma once
+#include <iostream>
 
 #pragma once
 #include <limits>
@@ -10,7 +12,8 @@
 using namespace std;
 
 Scene::Scene(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
-	glm::vec3 LR_arg, int w,int h,int d,list<Light> l, list<Shape> s) {
+	glm::vec3 LR_arg, int w,int h,int d) {
+
 	eye_position = eye;
 	UL = UL_arg;
 	UR = UR_arg;
@@ -18,8 +21,19 @@ Scene::Scene(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
 	LR = LR_arg;
 	width = w;
 	height = h;
-	lights = l;
-	shapes = s;
+	maxdepth = d;
+}
+
+void Scene::set_params(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
+	glm::vec3 LR_arg, int w,int h,int d) {
+
+	eye_position = eye;
+	UL = UL_arg;
+	UR = UR_arg;
+	LL = LL_arg;
+	LR = LR_arg;
+	width = w;
+	height = h;
 	maxdepth = d;
 }
 
@@ -39,7 +53,7 @@ void Scene::render(Camera c, Film kodak) {
 			color[0] = 0;
 			color[1] = 0;
 			color[2] = 0;
-			//trace_machine.trace(ray,trace_machine.maxdepth,&color);
+			trace(ray,0,&color);
 			kodak.commit(i, j, color);
 		}
 	}
@@ -66,11 +80,13 @@ void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
 		float current_T;
 		LocalGeo current_local;
 		bool hit = s.intersect(r, &current_T, &current_local);
+		cout << hit << "***" << endl;
 		if (current_T < thit && hit) {
 			thit = current_T;
 			local = current_local;
 			no_hit = false;
 			best_shape = s;
+			// cout << "It's a hit!" << endl;
 		}
 	}
 
@@ -81,8 +97,18 @@ void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
 		return;
 	}
 
+	color->x = 1;
+	color->y = 0;
+	color->z = .5;
+	return;
+
 	// obtain BRDF at intersection point
-	BRDF brdf = best_shape.brdf;
+	// BRDF brdf = best_shape.brdf;
+	glm::vec3 ka(0,0,0);
+	glm::vec3 kd(1,0,0);
+	glm::vec3 ks(0,0,0);
+	glm::vec3 kr(0,0,0);
+	BRDF brdf(ka,kd,ks,kr);
 	//in.primitive->getBRDF(in.local, &brdf);
 
 	//// There is an intersection, loop through all light sources
@@ -140,6 +166,7 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	//Calculate the specular component
 	//still need viewer vector. I'm just going to pick (0,0,1)
 	//Need to change this later.
+	//Change view to direction to camera
 	glm::vec3 view(0,0,1);
 	float specular = glm::dot(r_vec,view);
 	specular = glm::max(specular,0.0f);
@@ -152,10 +179,10 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	return out_color;
 }
 
-void Scene::add_shape(Shape *s) {
+void Scene::add_shape(Shape s) {
 	shapes.push_front(s);
 }
 
-void Scene::add_light(Light *l) {
+void Scene::add_light(Light l) {
 	lights.push_front(l);
 }

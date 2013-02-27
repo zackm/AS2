@@ -4,11 +4,16 @@
 #pragma once
 #include "localGeo.h"
 
+#pragma once
+#include <iostream>
+
+using namespace std;
+
 class Shape {
 public:
 	Shape(void);
 	~Shape(void);
-	virtual bool intersect(Ray&, float*, LocalGeo*){return false;};
-	virtual bool intersect(Ray&){return false;};
+	virtual bool intersect(Ray&, float*, LocalGeo*){};
+	virtual bool intersect(Ray&){};
 };
 

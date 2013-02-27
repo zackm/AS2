@@ -18,6 +18,9 @@
 #include <list>
 using namespace std;
 
+#pragma once
+#include "BRDF.h"
+
 class Scene {
 public:
 	glm::vec3 eye_position;
@@ -26,10 +29,12 @@ public:
 	list<Light> lights;
 	list<Shape> shapes;
 
-	Scene(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int,int,list<Light>,list<Shape>);
+	Scene(){};
+	Scene(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int,int);
+	void set_params(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int,int);
 	void render(Camera, Film);
-	void add_shape(Shape *);
-	void add_light(Light *);
+	void add_shape(Shape);
+	void add_light(Light);
 	void trace(Ray &, int, glm::vec3 *);
 	bool intersect_checker(Ray&);
 	glm::vec3 shading(LocalGeo, BRDF, Ray, glm::vec3);
