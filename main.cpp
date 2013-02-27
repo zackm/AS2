@@ -193,12 +193,16 @@ int main(int argc, char *argv[]) {
     //Primitive collection pc(primitive_list);
     int BitsPerPixel = 24;
     Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel);
-    Camera c;
-    glm::vec3 eye(0.0f,0.0f,5.0f);
-    glm::vec3 UL(-1.0f,1.0f,-1.0f);
-    glm::vec3 UR(1.0f,1.0f,-1.0f);
-    glm::vec3 LL(1.0f,-1.0f,-1.0f);
-    glm::vec3 LR(-1.0f,-1.0f,-1.0f);
+
+	float fov = 90;
+	glm::vec3 pos(0,0,1);
+	glm::vec3 dir(0,0,-1);
+	glm::vec3 up(0,1,0);
+
+    glm::vec3 eye,UL,UR,LL,LR;
+
+	Camera c(pos,dir,up,fov);
+	c.cornerVectors(&UL,&UR,&LL,&LR,WIDTH,HEIGHT);
     Scene s(eye,UL,UR,LL,LR,WIDTH,HEIGHT);
     s.render(c,canvas);
 
