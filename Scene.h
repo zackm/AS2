@@ -32,4 +32,6 @@ public:
 
 	Scene(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int);
 	void render(Camera, Film); // add raytracer arg
+	void add_shape(Shape *);
+	void add_light(Light *);
 };

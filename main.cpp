@@ -148,6 +148,44 @@ int main(int argc, char *argv[]) {
 				WIDTH = atoi(splitline[1].c_str());
 				HEIGHT = atoi(splitline[2].c_str());
     		}
+
+			//sphere x y z radius
+			//  Deﬁnes a sphere with a given position and radius.
+			else if(!splitline[0].compare("sphere")) {
+				x = atof(splitline[1].c_str())
+				y = atof(splitline[1].c_str())
+				z = atof(splitline[1].c_str())
+				r = atof(splitline[4].c_str())
+				// Create new sphere:
+				//   Store 4 numbers
+				//   Store current property values
+				//   Store current top of matrix stack
+				s.add_shape(Sphere(glm::vec3(x,y,z),r));
+			}
+
+			//directional x y z r g b
+			//  The direction to the light source, and the color, as in OpenGL.
+			else if(!splitline[0].compare("directional")) {
+				x = atof(splitline[1].c_str()),
+				y = atof(splitline[2].c_str()),
+				z = atof(splitline[3].c_str()));
+				r = atof(splitline[4].c_str()),
+				g = atof(splitline[5].c_str()),
+				b = atof(splitline[6].c_str()));
+				s.add_light(DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
+			}
+			
+			//point x y z r g b
+			//  The location of a point source and the color, as in OpenGL.
+			else if(!splitline[0].compare("point")) {
+				x = atof(splitline[1].c_str()),
+				y = atof(splitline[2].c_str()),
+				z = atof(splitline[3].c_str()));
+				r = atof(splitline[4].c_str()),
+				g = atof(splitline[5].c_str()),
+				b = atof(splitline[6].c_str()));
+				s.add_light(PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
+			}			
     	}
     }
 	// End Arg Parser
@@ -165,6 +203,8 @@ int main(int argc, char *argv[]) {
 
 	Camera c(pos,dir,up,fov);
 	c.cornerVectors(&UL,&UR,&LL,&LR,WIDTH,HEIGHT);
+	// Need to create scene variable before parsing args.
+	// Add lights/shapes/coordinates/image size as they are parsed.
     Scene s(eye,UL,UR,LL,LR,WIDTH,HEIGHT);
     s.render(c,canvas);
 

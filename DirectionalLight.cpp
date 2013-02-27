@@ -6,3 +6,4 @@ void DirectionalLight::generateLightRay(LocalGeo& local,Ray* lray,glm::vec3 lcol
 	lray->t_min = t_min;
 	lray->t_max = t_max;
 }
+
