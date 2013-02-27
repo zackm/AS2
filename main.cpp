@@ -203,6 +203,8 @@ int main(int argc, char *argv[]) {
 
 	Camera c(pos,dir,up,fov);
 	c.cornerVectors(&UL,&UR,&LL,&LR,WIDTH,HEIGHT);
+	// Need to create scene variable before parsing args.
+	// Add lights/shapes/coordinates/image size as they are parsed.
     Scene s(eye,UL,UR,LL,LR,WIDTH,HEIGHT);
     s.render(c,canvas);
 
