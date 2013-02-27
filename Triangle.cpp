@@ -32,11 +32,6 @@ bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
 		//beta,gamma, t.
 		glm::vec3 matrix_point = ray.position-a; //these formulae from slides
 
-		//glm::mat3 bary_matrix(plane_vec1[0],plane_vec1[1],plane_vec1[2],plane_vec2[0],
-		//					  plane_vec2[1],plane_vec2[2],-ray.direction[0],-ray.direction[1],
-		//					  -ray.direction[2]); //test matrix for row or column first constructor
-
-
 		//I believe this to be correct for mat3 constructor
 		glm::mat3 bary_matrix(plane_vec1[0],plane_vec2[0],-ray.direction[0],plane_vec1[1],
 			plane_vec2[1],-ray.direction[1],plane_vec1[2],plane_vec2[2],
@@ -82,11 +77,6 @@ bool Triangle::intersect(Ray& ray){
 
 			//beta,gamma, t.
 			glm::vec3 matrix_point = ray.position-a; //these formulae from slides
-
-			//glm::mat3 bary_matrix(plane_vec1[0],plane_vec1[1],plane_vec1[2],plane_vec2[0],
-			//					  plane_vec2[1],plane_vec2[2],-ray.direction[0],-ray.direction[1],
-			//					  -ray.direction[2]); //test matrix for row or column first constructor
-
 
 			//I believe this to be correct for mat3 constructor
 			glm::mat3 bary_matrix(plane_vec1[0],plane_vec2[0],-ray.direction[0],plane_vec1[1],
