@@ -15,9 +15,6 @@
 #endif
 
 #pragma once
-#include "Raytracer.h"
-
-#pragma once
 #include <list>
 using namespace std;
 
@@ -25,13 +22,13 @@ class Scene {
 public:
 	glm::vec3 eye_position;
 	glm::vec3 UL, UR, LL, LR;
-	int width, height;
+	int width, height, maxdepth;
 	list<Light> lights;
 	list<Shape> shapes;
-	Raytracer trace_machine;
 
-	Scene(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int);
-	void render(Camera, Film); // add raytracer arg
+	Scene(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int,int,list<Light>,list<Shape>);
+	void render(Camera, Film);
 	void add_shape(Shape *);
 	void add_light(Light *);
+	void trace(Ray &, int, glm::vec3 *);
 };

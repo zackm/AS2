@@ -4,7 +4,7 @@
 #pragma once
 #include "localGeo.h"
 
-class Shape{
+class Shape {
 public:
 	Shape(void);
 	~Shape(void);
