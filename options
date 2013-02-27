@@ -1,3 +1,4 @@
 size 400 400
-sphere 0 0 0 .3
-directional 0 0 -1 1 0 0
+camera 0.0f 0.0f 1.2f 0.0f 0.0f -1.0f 0.0f 1.0f 0.0f 90
+sphere 0 0 0 .5f
+directional 0 0 -2 1 1 1

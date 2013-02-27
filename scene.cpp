@@ -19,29 +19,29 @@
 using namespace std;
 
 Scene::Scene(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
-	glm::vec3 LR_arg, int w,int h,int d) {
+			 glm::vec3 LR_arg, int w,int h,int d) {
 
-	eye_position = eye;
-	UL = UL_arg;
-	UR = UR_arg;
-	LL = LL_arg;
-	LR = LR_arg;
-	width = w;
-	height = h;
-	maxdepth = d;
+				 eye_position = eye;
+				 UL = UL_arg;
+				 UR = UR_arg;
+				 LL = LL_arg;
+				 LR = LR_arg;
+				 width = w;
+				 height = h;
+				 maxdepth = d;
 }
 
 void Scene::set_params(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
-	glm::vec3 LR_arg, int w,int h,int d) {
+					   glm::vec3 LR_arg, int w,int h,int d) {
 
-	eye_position = eye;
-	UL = UL_arg;
-	UR = UR_arg;
-	LL = LL_arg;
-	LR = LR_arg;
-	width = w;
-	height = h;
-	maxdepth = d;
+						   eye_position = eye;
+						   UL = UL_arg;
+						   UR = UR_arg;
+						   LL = LL_arg;
+						   LR = LR_arg;
+						   width = w;
+						   height = h;
+						   maxdepth = d;
 }
 
 void Scene::render(Camera c, Film kodak) {
@@ -85,7 +85,7 @@ void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
 		Shape* s = *iter;
 		float current_T;
 		LocalGeo current_local;
-		bool hit = s->intersect(r, &current_T, &current_local);
+		bool hit = (*s).intersect(r, &current_T, &current_local);
 		if (current_T < thit && hit) {
 			thit = current_T;
 			local = current_local;
@@ -117,17 +117,23 @@ void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
 	//in.primitive->getBRDF(in.local, &brdf);
 
 	//// There is an intersection, loop through all light sources
-	//Ray lray;
-	//glm::vec3 lcolor(0.0f,0.0f,0.0f);
-	//for (std::list<Light*>::iterator iter=lights.begin(); iter != lights.end(); ++iter) {
-	//	Light* l = *iter;
-	//	l->generateLightRay();
-	//	
-	//	if (!intersect_checker(lray)) {
-	//		// If not, do shading calculation for this light source
-	//		*color += shading(local, brdf, lray, lcolor);
-	//	}
-	//}
+	Ray lray;
+	glm::vec3 lcolor(0.0f,0.0f,0.0f);
+
+	for (std::list<Light*>::iterator iter=lights.begin(); iter != lights.end(); ++iter) {
+		Light* l = *iter;
+		(*l).generateLightRay(local,&lray,&lcolor);
+		//cout<<(*l).direction[2];
+		if (!intersect_checker(lray)) {
+			cout<<'h';
+			color->x = 1;
+			color->y = 0;
+			color->z = .5;
+			return;
+			// If not, do shading calculation for this light source
+			*color += shading(local, brdf, lray, lcolor);
+		}
+	}
 
 	// Handle mirror reflection
 	// if (brdf.kr > 0) {

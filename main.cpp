@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
 				//   Store 4 numbers
 				//   Store current property values
 				//   Store current top of matrix stack
-				Sphere* sph = &Sphere(glm::vec3(x,y,z),r);
+				Sphere* sph = new Sphere(glm::vec3(x,y,z),r);
 				s.add_shape(sph);
 			}
 
@@ -185,7 +185,8 @@ int main(int argc, char *argv[]) {
 				float r = atof(splitline[4].c_str());
 				float g = atof(splitline[5].c_str());
 				float b = atof(splitline[6].c_str());
-				//s.add_light(DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
+				DirectionalLight* dl = new DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b));
+				s.add_light(dl);
 			}
 			
 			//point x y z r g 
@@ -209,9 +210,10 @@ int main(int argc, char *argv[]) {
 				float up_y = atof(splitline[8].c_str());
 				float up_z = atof(splitline[9].c_str());
 				float fov = atof(splitline[10].c_str());
-				Camera c(glm::vec3(from_x,from_y,from_z),
-					     glm::vec3(to_x,to_y,to_z), 
-						 glm::vec3(up_x,up_y,up_z), fov);
+				c.position = glm::vec3(from_x,from_y,from_z);
+				c.direction = glm::vec3(to_x,to_y,to_z);
+				c.up = glm::vec3(up_x,up_y,up_z);
+				c.fov = fov;
 			}
     	}
     }
