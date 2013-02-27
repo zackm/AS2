@@ -31,7 +31,7 @@ void Scene::render(Camera c, Film kodak) { // add raytracer arg back
 			color[0] = 0;
 			color[1] = 0;
 			color[2] = 0;
-			trace_machine.trace(ray,trace_machine.maxdepth,&color);
+			//trace_machine.trace(ray,trace_machine.maxdepth,&color);
 			kodak.commit(i, j, color);
 		}
 	}

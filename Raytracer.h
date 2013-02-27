@@ -4,13 +4,9 @@
 #pragma once
 #include "Ray.h"
 
-#pragma once
-#include "AggregatePrimitive.h"
-
 class Raytracer{
 public:
 	int maxdepth;
-	AggregatePrimitive primitives;
 
 	Raytracer(){maxdepth = 5;};
 	Raytracer(int);
