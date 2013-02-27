@@ -1,13 +1,16 @@
 #pragma once
 #include "LocalGeo.h"
+
+#pragma once
 #include "Primitive.h"
-class Intersection
-{
+
+class Intersection{
 public:
 	LocalGeo localGeo;
 	Primitive* primitive;
-	Intersection(void){};
+
+	Intersection(void);
 	Intersection(LocalGeo,Primitive*);
-	~Intersection(void){};
+	~Intersection(void);
 };
 

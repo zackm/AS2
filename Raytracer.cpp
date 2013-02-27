@@ -1,10 +1,26 @@
 #pragma once
 #include "Raytracer.h"
+
+#pragma once
 #include "Ray.h"
+
+#pragma once
 #include "Shape.h"
+
+#pragma once
 #include "BRDF.h"
+
+#pragma once
 #include "Light.h"
+
+#pragma once
+#include "Sphere.h"
+
+#pragma once
 #include <list>
+
+#pragma once
+#include <iostream>
 
 using namespace std;
 
@@ -35,19 +51,19 @@ void Raytracer::trace(Ray &r, int depth, glm::vec3 *color) {
 	BRDF brdf;
 	//in.primitive->getBRDF(in.local, &brdf);
 
-	// There is an intersection, loop through all light sources
-	Ray lray;
-	glm::vec3 lcolor;
-	for (std::list<Light>::iterator iter=lights.begin(); iter != lights.end(); ++iter) {
-		Light l = *iter;
-		l.generateLightRay(in.local, &lray, &lcolor);
-		// check if the light is blocked or not
-		if (!primitive->intersectP(lray)) {
-			// If not, do shading calculation for this light source
-			// shading from AS1
-			//*color += shading(in.local, brdf, lray, lcolor);
-		}
-	}
+	//// There is an intersection, loop through all light sources
+	//Ray lray;
+	//glm::vec3 lcolor;
+	//for (std::list<Light>::iterator iter=lights.begin(); iter != lights.end(); ++iter) {
+	//	Light l = *iter;
+	//	l.generateLightRay(in.local, &lray, &lcolor);
+	//	// check if the light is blocked or not
+	//	if (!primitive->intersectP(lray)) {
+	//		// If not, do shading calculation for this light source
+	//		// shading from AS1
+	//		//*color += shading(in.local, brdf, lray, lcolor);
+	//	}
+	//}
 
 	// Handle mirror reflection
 	// if (brdf.kr > 0) {

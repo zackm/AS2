@@ -1,5 +1,7 @@
 #pragma once
 #include "Ray.h"
+
+#pragma once
 #include "localGeo.h"
 
 class Shape{

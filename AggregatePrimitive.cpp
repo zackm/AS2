@@ -4,7 +4,7 @@ AggregatePrimitive::AggregatePrimitive(std::vector<Primitive*> p_vector) {
 	list = p_vector;
 }
 
-AggregatePrimitive::intersect(Ray& r, float* thit, Intersection* in) {
+bool AggregatePrimitive::intersect(Ray& r, float* thit, Intersection* in) {
 	float least_t = MAX_FLOAT;
 	for (std::vector<Primitive*>::iterator it = list.begin; it != list.end(); ++it) {
 		p = *it;
@@ -17,7 +17,7 @@ AggregatePrimitive::intersect(Ray& r, float* thit, Intersection* in) {
  	}
 }
 
-AggregatePrimitive::intersectP(Ray& r) {
+bool AggregatePrimitive::intersectP(Ray& r) {
 	for (std::vector<Primitive*>::iterator it = list.begin; it != list.end(); ++it) {
 		p = *it;
 		if (p.intersectP(r)) {

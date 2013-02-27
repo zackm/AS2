@@ -1,11 +1,17 @@
 #pragma once
 #include "Ray.h"
+
+#pragma once
 #include "Intersection.h"
+
+#pragma once
 #include "localGeo.h"
+
+#pragma once
 #include "BRDF.h"
 
-class Primitive
-{
+class Primitive{
+
 public:
 	Primitive(void);
 	virtual bool intersect(Ray&,float*,Intersection*);

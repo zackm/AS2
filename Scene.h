@@ -14,6 +14,10 @@
 #include "Film.h"
 #endif
 
+#pragma once
+#include "Raytracer.h"
+
+#pragma once
 #include <list>
 using namespace std;
 
@@ -24,6 +28,7 @@ public:
 	int width, height;
 	list<Light> lights;
 	list<Shape> shapes;
+	Raytracer trace_machine;
 
 	Scene(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int);
 	void render(Camera, Film); // add raytracer arg

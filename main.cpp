@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
     int BitsPerPixel = 24;
     Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel);
     Camera c;
-    glm::vec3 eye(0.0f,0.0f,0.0f);
+    glm::vec3 eye(0.0f,0.0f,5.0f);
     glm::vec3 UL(-1.0f,1.0f,-1.0f);
     glm::vec3 UR(1.0f,1.0f,-1.0f);
     glm::vec3 LL(1.0f,-1.0f,-1.0f);
