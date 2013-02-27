@@ -38,3 +38,11 @@ void Scene::render(Camera c, Film kodak) { // add raytracer arg back
 
 	kodak.writeImage();
 }
+
+void Scene::add_shape(Shape *s) {
+	shapes.push_front(s);
+}
+
+void Scene::add_light(Light *l) {
+	lights.push_front(l);
+}
