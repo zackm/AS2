@@ -3,8 +3,8 @@
 
 float pi = 3.14159265359;
 
-void Camera::generateRay(float pos[], Ray *r, glm::vec3 eye) {
-	glm::vec3 ray_vec(pos[0] - eye[0], pos[1] - eye[1], - eye[2]);
+void Camera::generateRay(glm::vec3 pos, Ray *r, glm::vec3 eye) {
+	glm::vec3 ray_vec(pos[0] - eye[0], pos[1] - eye[1], pos[2] - eye[2]);
 	r->position = eye;
 	r->direction = ray_vec;
 	r->t_min = .001; //make a small number, maybe could be 0.

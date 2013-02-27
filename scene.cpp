@@ -15,19 +15,18 @@ Scene::Scene(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg, 
 }
 
 void Scene::render(Camera c, Film kodak) { // add raytracer arg back
-	Sample sample(0,0);
+	float u,v;
 	Ray ray;
 	glm::vec3 color;
+	glm::vec3 pix_pos;
 	for (int i = 0; i < width; i++) {
 		for (int j = 0; j < height; j++) {
-			sample.x = i + 0.5f;
-			sample.y = j + 0.5f;
-			float centerx = width / 2;
-			float centery = height / 2;
-			// alternative formula in lecture slides
-			float pos[2] = { ((sample.x - centerx) / width ) * (UR[0] - UL[0]),
-							 ((sample.y - centery) / height) * (UR[1] - LR[1]) };
-			c.generateRay(pos, &ray, eye_position);
+			u = i+.5;
+			v = j+.5;
+
+			pix_pos = u*(v*LL+(1-v)*UL)+(1-u)*(v*LR+(1-v)*UR);
+
+			c.generateRay(pix_pos, &ray, eye_position);
 			color[0] = 0;
 			color[1] = 0;
 			color[2] = 0;
