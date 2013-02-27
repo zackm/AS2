@@ -11,9 +11,9 @@ using namespace std;
 
 class Shape {
 public:
-	Shape(void);
-	~Shape(void);
-	virtual bool intersect(Ray&, float*, LocalGeo*){};
-	virtual bool intersect(Ray&){};
+	Shape(void){};
+	~Shape(void){};
+	virtual bool intersect(Ray&, float*, LocalGeo*) =0;
+	virtual bool intersect(Ray&) =0;
 };
 

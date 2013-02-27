@@ -112,6 +112,8 @@
 #pragma once
 #include "PointLight.h"
 
+#include <typeinfo>
+
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -127,6 +129,7 @@ int main(int argc, char *argv[]) {
 	//std::vector<Primitive*> primitive_list;
 
 	Scene s;
+	Camera c;
 	// Arg Parser
 	std::ifstream inpfile(filename.c_str());
 	if(!inpfile.is_open()) {
@@ -169,7 +172,8 @@ int main(int argc, char *argv[]) {
 				//   Store 4 numbers
 				//   Store current property values
 				//   Store current top of matrix stack
-				s.add_shape(Sphere(glm::vec3(x,y,z),r));
+				Sphere* sph = &Sphere(glm::vec3(x,y,z),r);
+				s.add_shape(sph);
 			}
 
 			//directional x y z r g b
@@ -181,10 +185,10 @@ int main(int argc, char *argv[]) {
 				float r = atof(splitline[4].c_str());
 				float g = atof(splitline[5].c_str());
 				float b = atof(splitline[6].c_str());
-				s.add_light(DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
+				//s.add_light(DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
 			}
 			
-			//point x y z r g b
+			//point x y z r g 
 			//  The location of a point source and the color, as in OpenGL.
 			else if(!splitline[0].compare("point")) {
 				float x = atof(splitline[1].c_str());
@@ -193,8 +197,22 @@ int main(int argc, char *argv[]) {
 				float r = atof(splitline[4].c_str());
 				float g = atof(splitline[5].c_str());
 				float b = atof(splitline[6].c_str());
-				// s.add_light(PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
-			}			
+				//s.add_light(PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
+			}else if(!splitline[0].compare("camera")){
+				float from_x = atof(splitline[1].c_str());
+				float from_y = atof(splitline[2].c_str());
+				float from_z = atof(splitline[3].c_str());
+				float to_x = atof(splitline[4].c_str());
+				float to_y = atof(splitline[5].c_str());
+				float to_z = atof(splitline[6].c_str());
+				float up_x = atof(splitline[7].c_str());
+				float up_y = atof(splitline[8].c_str());
+				float up_z = atof(splitline[9].c_str());
+				float fov = atof(splitline[10].c_str());
+				Camera c(glm::vec3(from_x,from_y,from_z),
+					     glm::vec3(to_x,to_y,to_z), 
+						 glm::vec3(up_x,up_y,up_z), fov);
+			}
     	}
     }
 	// End Arg Parser
@@ -203,16 +221,10 @@ int main(int argc, char *argv[]) {
     int BitsPerPixel = 24;
     Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel);
 
-	float fov = 90;
-	glm::vec3 pos(0,0,1);
-	glm::vec3 dir(0,0,-1);
-	glm::vec3 up(0,1,0);
+    glm::vec3 UL,UR,LL,LR;
 
-    glm::vec3 eye,UL,UR,LL,LR;
-
-	Camera c(pos,dir,up,fov);
 	c.cornerVectors(&UL,&UR,&LL,&LR,WIDTH,HEIGHT);
-    s.set_params(eye,UL,UR,LL,LR,WIDTH,HEIGHT,1);
+    s.set_params(c.position,UL,UR,LL,LR,WIDTH,HEIGHT,1);
     s.render(c,canvas);
 
 	return 0;

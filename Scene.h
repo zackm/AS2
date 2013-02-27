@@ -26,15 +26,15 @@ public:
 	glm::vec3 eye_position;
 	glm::vec3 UL, UR, LL, LR;
 	int width, height, maxdepth;
-	list<Light> lights;
-	list<Shape> shapes;
+	list<Light*> lights;
+	list<Shape*> shapes;
 
 	Scene(){};
 	Scene(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int,int);
 	void set_params(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int,int);
 	void render(Camera, Film);
-	void add_shape(Shape);
-	void add_light(Light);
+	void add_shape(Shape*);
+	void add_light(Light*);
 	void trace(Ray &, int, glm::vec3 *);
 	bool intersect_checker(Ray&);
 	glm::vec3 shading(LocalGeo, BRDF, Ray, glm::vec3);

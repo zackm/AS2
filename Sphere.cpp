@@ -21,10 +21,10 @@ Sphere::Sphere(glm::vec3 arg_center, float arg_radius){
 
 bool Sphere::intersect(Ray& ray, float* thit,LocalGeo* local){
 	if (!intersect(ray)){
-		cout << "*" << endl;
+		cout<<'here';
 		return false;
 	}else{
-		cout << "$" << endl;
+		cout<<'not';
 		float a = glm::dot(ray.direction, ray.direction);
 
 		glm::vec3 b_vec = ray.position-center;
@@ -63,7 +63,7 @@ bool Sphere::intersect(Ray& ray){
 	float addit = glm::sqrt(discrim);
 	float root1 = -b+addit;
 	float root2 = -b-addit;
-
+	
 	if (discrim<0 || (root1<0 && root2<0)){ //So, no solution provided the solutions are behind the ray (negative) or away from sphere
 		return false;
 	}else{
