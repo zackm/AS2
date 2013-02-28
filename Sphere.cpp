@@ -4,6 +4,7 @@
 #include "LocalGeo.h"
 #include "glm/glm.hpp"
 #include <iostream>
+#include "DirectionalLight.h"
 
 using namespace std;
 
@@ -20,32 +21,41 @@ Sphere::Sphere(glm::vec3 arg_center, float arg_radius){
 
 
 bool Sphere::intersect(Ray& ray, float* thit,LocalGeo* local){
-	if (!intersect(ray)){
+	//cout<<ray.direction[1];
+
+	float a = glm::dot(ray.direction, ray.direction);
+
+	glm::vec3 b_vec = ray.position-center;
+
+	float b = 2*glm::dot(b_vec,ray.direction);
+	float c = glm::dot(b_vec,b_vec)-radius*radius;
+
+	float discrim = b*b-4*a*c;
+
+	if (discrim<0){
 		return false;
-	}else{
-		float a = glm::dot(ray.direction, ray.direction);
-
-		glm::vec3 b_vec = ray.position-center;
-
-		float b = 2*glm::dot(b_vec,ray.direction);
-		float c = glm::dot(b_vec,b_vec)-radius*radius;
-
-		float discrim = b*b-4*a*c;
-
-		float addit = glm::sqrt(discrim);
-		float root1 = -b+addit;
-		float root2 = -b-addit;
-
-		if (root1<0 || root2<0){ //is it possible for both to be negative?
-			*thit = glm::max(root1,root2)/(2*a);
-		}else{
-			*thit = glm::min(root1,root2)/(2*a);
-		}
-		local->point = ray.position+(*thit)*ray.direction;
-		glm::vec3 sphere_vec = local->point-center;
-		local->normal = sphere_vec/glm::sqrt(glm::dot(sphere_vec,sphere_vec));
-		return true;
 	}
+
+	float addit = glm::sqrt(discrim);
+	float root1 = -b+addit;
+	float root2 = -b-addit;
+
+	if (root1<ray.t_min){
+		if (root2<ray.t_min){
+			return false; //negative solutions
+		}else{
+			*thit = root2/(2.0f*a);
+		}
+	}else if(root2<ray.t_min){
+		*thit = root1/(2.0f*a);
+	}else{
+		*thit = glm::min(root1,root2)/(2.0f*a);
+	}
+
+	local->point = ray.position+(*thit)*ray.direction;
+	glm::vec3 sphere_vec = local->point-center;
+	local->normal = sphere_vec/glm::sqrt(glm::dot(sphere_vec,sphere_vec));
+	return true;
 }
 
 bool Sphere::intersect(Ray& ray){
@@ -58,25 +68,48 @@ bool Sphere::intersect(Ray& ray){
 
 	float discrim = b*b-4*a*c;
 
+	if (discrim<0){
+		return false;
+	}
+
 	float addit = glm::sqrt(discrim);
 	float root1 = -b+addit;
 	float root2 = -b-addit;
-	
-	if (discrim<0 || (root1<0 && root2<0)){ //So, no solution provided the solutions are behind the ray (negative) or away from sphere
-		return false;
-	}else{
-		return true;
+
+	if (root1<ray.t_min){
+		if (root2<ray.t_min){
+			return false; //negative solutions
+		}
 	}
+	return true;
 }
 
 //int main (int argc, char* argv[]){
 //	glm::vec3 v(0,0,0);
-//	Sphere testSphere(v,.9f);
+//	Sphere testSphere(v,1.0f);
+//
 //	glm::vec3 pos(0,0,1);
 //	glm::vec3 dir(0,0,1);
+//
+//	DirectionalLight test(glm::vec3(0,0,-2),glm::vec3(1,1,1));
+//
 //	LocalGeo testGeo;
-//	Ray testRay(pos,dir,0,10);
-//	cout<<testSphere.intersect(testRay);
+//	float thit = 0;
+//	Ray initRay(glm::vec3(0,0,2),glm::vec3(0,0,-1),0,10);
+//	testSphere.intersect(initRay,&thit,&testGeo);
+//
+//	Ray testRay;
+//	glm::vec3 color(0,0,0);
+//
+//	test.generateLightRay(testGeo,&testRay,&color);
+//
+//	//cout<<testRay.t_min;
+//	//cout<<testGeo.point[1];
+//
+//	testRay.t_min = 1;
+//	bool hit = testSphere.intersect(testRay,&thit,&testGeo);
+//
+//	cout<<hit;
 //	cin.get();
 //	return 0;
 //}
