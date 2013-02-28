@@ -9,11 +9,15 @@
 #include <iostream>
 #include "glm/glm.hpp"
 
+#pragma once
+#include <string>
+
 using namespace std;
 
-Film::Film(int width, int height, int BitsPerPixel) {
+Film::Film(int width, int height, int BitsPerPixel, std::string fname) {
 	FreeImage_Initialise();
 	bitmap = FreeImage_Allocate(width, height, BitsPerPixel);
+	filename = fname;
 }
 
 void Film::commit(int x, int y, glm::vec3 color) {
@@ -27,7 +31,12 @@ void Film::commit(int x, int y, glm::vec3 color) {
 }
 
 void Film::writeImage() {
-	if (FreeImage_Save(FIF_PNG, bitmap, "test.png", 0)) 
+	
+	if (filename.empty()) {
+		filename = "output.png";
+	}
+
+	if (FreeImage_Save(FIF_PNG, bitmap, filename.c_str(), 0)) 
 		cout << "Image successfully saved!" << endl;
 
 	FreeImage_DeInitialise();

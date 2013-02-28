@@ -112,6 +112,12 @@
 #pragma once
 #include "PointLight.h"
 
+#pragma once
+#include <vector>
+
+#pragma once
+#include "Triangle.h"
+
 #include <typeinfo>
 
 using namespace std;
@@ -130,6 +136,12 @@ int main(int argc, char *argv[]) {
 
 	Scene s;
 	Camera c;
+	int maxdepth;
+	std::string output_name;
+	vector<glm::vec3> vertices;
+	vector<glm::vec3> vertexnorm_v;
+	vector<glm::vec3> vertexnorm_n;
+
 	// Arg Parser
 	std::ifstream inpfile(filename.c_str());
 	if(!inpfile.is_open()) {
@@ -161,6 +173,18 @@ int main(int argc, char *argv[]) {
 				HEIGHT = atoi(splitline[2].c_str());
     		}
 
+			//maxdepth depth
+			//  max # of bounces for ray (default 5)
+			else if(!splitline[0].compare("maxdepth")) {
+				maxdepth = atoi(splitline[1].c_str());
+			}
+
+			//output filename
+			//  output file to write image to 
+			else if(!splitline[0].compare("output")) {
+				output_name = splitline[1];
+			}	
+
 			//sphere x y z radius
 			//  Deﬁnes a sphere with a given position and radius.
 			else if(!splitline[0].compare("sphere")) {
@@ -174,6 +198,87 @@ int main(int argc, char *argv[]) {
 				//   Store current top of matrix stack
 				Sphere* sph = new Sphere(glm::vec3(x,y,z),r);
 				s.add_shape(sph);
+			}
+
+			//maxverts number
+			//  Deﬁnes a maximum number of vertices for later triangle speciﬁcations. 
+			//  It must be set before vertices are deﬁned.
+			else if(!splitline[0].compare("maxverts")) {
+				// ignore
+			}
+
+			//maxvertnorms number
+			//  Deﬁnes a maximum number of vertices with normals for later speciﬁcations.
+			//  It must be set before vertices with normals are deﬁned.
+			else if(!splitline[0].compare("maxvertnorms")) {
+				// ignore
+			}
+
+			//vertex x y z
+			//  Deﬁnes a vertex at the given location.
+			//  The vertex is put into a pile, starting to be numbered at 0.
+			else if(!splitline[0].compare("vertex")) {
+				float x = atof(splitline[1].c_str());
+				float y = atof(splitline[2].c_str());
+				float z = atof(splitline[3].c_str());
+				// Create a new vertex with these 3 values, store in some array
+				glm::vec3 vert(x,y,z);
+				vertices.push_back(vert);
+			}
+
+			//vertexnormal x y z nx ny nz
+			//  Similar to the above, but deﬁne a surface normal with each vertex.
+			//  The vertex and vertexnormal set of vertices are completely independent
+			//  (as are maxverts and maxvertnorms).
+			else if(!splitline[0].compare("vertexnormal")) {
+				float x = atof(splitline[1].c_str());
+				float y = atof(splitline[2].c_str());
+				float z = atof(splitline[3].c_str());
+				float nx = atof(splitline[4].c_str());
+				float ny = atof(splitline[5].c_str());
+				float nz = atof(splitline[6].c_str());
+				// Create a new vertex+normal with these 6 values, store in some array
+				glm::vec3 norm_v(x,y,z);
+				glm::vec3 norm_n(nx,ny,nz);
+				vertexnorm_v.push_back(norm_v);
+				vertexnorm_n.push_back(norm_n);
+			}
+
+			//tri v1 v2 v3
+			//  Create a triangle out of the vertices involved (which have previously been speciﬁed with
+			//  the vertex command). The vertices are assumed to be speciﬁed in counter-clockwise order. Your code
+			//  should internally compute a face normal for this triangle.
+			else if(!splitline[0].compare("tri")) {
+				int v1 = atoi(splitline[1].c_str());
+				int v2 = atoi(splitline[2].c_str());
+				int v3 = atoi(splitline[3].c_str());
+				// Create new triangle:
+				//   Store pointer to array of vertices
+				//   Store 3 integers to index into array
+				//   Store current property values
+				//   Store current top of matrix stack
+				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3]);
+				s.add_shape(t);
+			}
+
+			//trinormal v1 v2 v3
+			//  Same as above but for vertices speciﬁed with normals.
+			//  In this case, each vertex has an associated normal, 
+			//  and when doing shading, you should interpolate the normals 
+			//  for intermediate points on the triangle.
+			else if(!splitline[0].compare("trinormal")) {
+				int v1 = atoi(splitline[1].c_str());
+				int v2 = atoi(splitline[2].c_str());
+				int v3 = atoi(splitline[3].c_str());
+				// Create new triangle:
+				//   Store pointer to array of vertices (Different array than above)
+				//   Store 3 integers to index into array
+				//   Store current property values
+				//   Store current top of matrix stack
+
+				// Triangle *t = new Triangle(vertexnorm_v[v1],vertexnorm_v[v2],vertexnorm_v[v3],
+				// 						   vertexnorm_n[v1],vertexnorm_n[v2],vertexnorm_n[v3]);
+				// s.add_shape(t);
 			}
 
 			//directional x y z r g b
@@ -199,7 +304,10 @@ int main(int argc, char *argv[]) {
 				float g = atof(splitline[5].c_str());
 				float b = atof(splitline[6].c_str());
 				//s.add_light(PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
-			}else if(!splitline[0].compare("camera")){
+			}
+
+			// camera lookfromx lookfromy lookfromz lookatx lookaty lookatz upx upy upz fov
+			else if(!splitline[0].compare("camera")){
 				float from_x = atof(splitline[1].c_str());
 				float from_y = atof(splitline[2].c_str());
 				float from_z = atof(splitline[3].c_str());
@@ -215,18 +323,73 @@ int main(int argc, char *argv[]) {
 				c.up = glm::vec3(up_x,up_y,up_z);
 				c.fov = fov;
 			}
-    	}
-    }
+
+			//attenuation const linear quadratic
+			//  Sets the constant, linear and quadratic attenuations 
+			//  (default 1,0,0) as in OpenGL.
+			else if(!splitline[0].compare("attenuation")) {
+				// const: atof(splitline[1].c_str())
+				// linear: atof(splitline[2].c_str())
+				// quadratic: atof(splitline[3].c_str())
+			}
+
+			//ambient r g b
+			//  The global ambient color to be added for each object 
+			//  (default is .2,.2,.2)
+			else if(!splitline[0].compare("ambient")) {
+				float r = atof(splitline[1].c_str());
+				float g = atof(splitline[2].c_str());
+				float b = atof(splitline[3].c_str());
+			}
+
+			//diﬀuse r g b
+			//  speciﬁes the diﬀuse color of the surface.
+			else if(!splitline[0].compare("diffuse")) {
+				// r: atof(splitline[1].c_str())
+				// g: atof(splitline[2].c_str())
+				// b: atof(splitline[3].c_str())
+				// Update current properties
+			}
+
+			//specular r g b 
+			//  speciﬁes the specular color of the surface.
+			else if(!splitline[0].compare("specular")) {
+				// r: atof(splitline[1].c_str())
+				// g: atof(splitline[2].c_str())
+				// b: atof(splitline[3].c_str())
+				// Update current properties
+			}
+
+			//shininess s
+			//  speciﬁes the shininess of the surface.
+			else if(!splitline[0].compare("shininess")) {
+				// shininess: atof(splitline[1].c_str())
+				// Update current properties
+			}
+
+			//emission r g b
+			//  gives the emissive color of the surface.
+			else if(!splitline[0].compare("emission")) {
+				// r: atof(splitline[1].c_str())
+				// g: atof(splitline[2].c_str())
+				// b: atof(splitline[3].c_str())
+				// Update current properties
+			} else {
+			std::cerr << "Unknown command: " << splitline[0] << std::endl;
+			}
+
+			}
+			}
 	// End Arg Parser
 
     //Primitive collection pc(primitive_list);
     int BitsPerPixel = 24;
-    Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel);
+    Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel, output_name);
 
     glm::vec3 UL,UR,LL,LR;
 
 	c.cornerVectors(&UL,&UR,&LL,&LR,WIDTH,HEIGHT);
-    s.set_params(c.position,UL,UR,LL,LR,WIDTH,HEIGHT,1);
+    s.set_params(c.position,UL,UR,LL,LR,WIDTH,HEIGHT,maxdepth);
     s.render(c,canvas);
 
 	return 0;

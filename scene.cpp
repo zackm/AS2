@@ -61,7 +61,7 @@ void Scene::render(Camera c, Film kodak) {
 			color[1] = 0;
 			color[2] = 0;
 			trace(ray,0,&color);
-			kodak.commit(i, j, color);
+			kodak.commit(width - i, height - j, color);
 		}
 	}
 	kodak.writeImage();
@@ -104,13 +104,13 @@ void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
 	color->x = 1;
 	color->y = 0;
 	color->z = .5;
-	return;
+	// return;
 
 	// obtain BRDF at intersection point
 	// BRDF brdf = best_shape.brdf;
-	glm::vec3 ka(1,1,1);
+	glm::vec3 ka(.2f,.2f,.1f);
 	glm::vec3 kd(1,0,0);
-	glm::vec3 ks(1,1,0);
+	glm::vec3 ks(.8f,.5f,0);
 	glm::vec3 kr(0,0,0);
 	BRDF brdf(ka,kd,ks,kr);
 
@@ -123,13 +123,13 @@ void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
 	for (std::list<Light*>::iterator iter=lights.begin(); iter != lights.end(); ++iter) {
 		Light* l = *iter;
 		(*l).generateLightRay(local,&lray,&lcolor);
-		//cout<<(*l).direction[2];
+		// cout<<(*l).direction[2]<<endl;
 		if (!intersect_checker(lray)) {
-			cout<<'h';
-			color->x = 1;
-			color->y = 0;
-			color->z = .5;
-			return;
+			// cout<<"here";
+			// color->x = 1;
+			// color->y = 0;
+			// color->z = .5;
+			// return;
 			// If not, do shading calculation for this light source
 			*color += shading(local, brdf, lray, lcolor);
 		}

@@ -1,4 +1,6 @@
 size 400 400
 camera 0.0f 0.0f 1.2f 0.0f 0.0f -1.0f 0.0f 1.0f 0.0f 90
-sphere 0 0 0 .5f
+sphere 0 0.2f 0 .5f
 directional 0 0 -2 1 1 1
+output test.png
+maxdepth 1
