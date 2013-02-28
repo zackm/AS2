@@ -70,11 +70,9 @@ void Scene::render(Camera c, Film kodak) {
 }
 
 void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
-	//for each primitive in list of primitives
 	float thit = std::numeric_limits<float>::infinity();
 	LocalGeo local;
 	Shape* best_shape;
-	//Intersection in;
 	if (depth > maxdepth) {
 		color->x = 0;
 		color->y = 0;
@@ -105,10 +103,10 @@ void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
 
 	// obtain BRDF at intersection point
 	// BRDF brdf = best_shape.brdf;
-	glm::vec3 ka(.2f,.2f,.1f);
-	glm::vec3 kd(1,0,0);
-	glm::vec3 ks(1,0,0);
-	glm::vec3 kr(0,0,0);
+	// glm::vec3 ka(.2f,.2f,.1f);
+	// glm::vec3 kd(1,0,0);
+	// glm::vec3 ks(1,0,0);
+	// glm::vec3 kr(0,0,0);
 	BRDF brdf(ka,kd,ks,kr);
 
 	//in.primitive->getBRDF(in.local, &brdf);
@@ -167,9 +165,13 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	//Need to change this later.
 	//Change view to direction to camera
 	glm::vec3 view = eye_position-local.point;
+	float view_norm = glm::dot(view,view);
+	if (view_norm > 0.0f) {
+		view = view*(1/glm::sqrt(glm::dot(view,view)));
+	}
 	float specular = glm::dot(r_vec,view);
 	specular = glm::max(specular,0.0f);
-	specular = glm::pow(specular,20.0f);//need to change 20 to p coefficient.
+	specular = glm::pow(specular,20.0f);//need to change 20 to p coefficient. (variable called shiny)
 
 	glm::vec3 out_color;
 	out_color[0] = (brdf.ka[0]+brdf.kd[0]*diffuse+brdf.ks[0]*specular)*lcolor[0];
@@ -184,6 +186,19 @@ void Scene::add_shape(Shape* s) {
 
 void Scene::add_light(Light* l) {
 	lights.push_front(l);
+}
+
+void Scene::add_ambient(glm::vec3 a) {
+	ka = a;
+}
+void Scene::add_diffuse(glm::vec3 d) {
+	kd = d;
+}
+void Scene::add_specular(glm::vec3 s) {
+	ks = s;
+}
+void Scene::add_shininess(float s) {
+	shiny = s;
 }
 
 //int main(char argc, char* argv[]){

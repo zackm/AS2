@@ -340,31 +340,31 @@ int main(int argc, char *argv[]) {
 				float r = atof(splitline[1].c_str());
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
+				s.add_ambient(glm::vec3(r,g,b));
 			}
 
 			//diﬀuse r g b
 			//  speciﬁes the diﬀuse color of the surface.
 			else if(!splitline[0].compare("diffuse")) {
-				// r: atof(splitline[1].c_str())
-				// g: atof(splitline[2].c_str())
-				// b: atof(splitline[3].c_str())
-				// Update current properties
+				float r = atof(splitline[1].c_str());
+				float g = atof(splitline[2].c_str());
+				float b = atof(splitline[3].c_str());
+				s.add_diffuse(glm::vec3(r,g,b));
 			}
 
 			//specular r g b 
 			//  speciﬁes the specular color of the surface.
 			else if(!splitline[0].compare("specular")) {
-				// r: atof(splitline[1].c_str())
-				// g: atof(splitline[2].c_str())
-				// b: atof(splitline[3].c_str())
-				// Update current properties
+				float r = atof(splitline[1].c_str());
+				float g = atof(splitline[2].c_str());
+				float b = atof(splitline[3].c_str());
+				s.add_specular(glm::vec3(r,g,b));
 			}
 
 			//shininess s
 			//  speciﬁes the shininess of the surface.
 			else if(!splitline[0].compare("shininess")) {
-				// shininess: atof(splitline[1].c_str())
-				// Update current properties
+				s.add_shininess(atof(splitline[1].c_str()));
 			}
 
 			//emission r g b

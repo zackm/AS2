@@ -25,6 +25,8 @@ class Scene {
 public:
 	glm::vec3 eye_position;
 	glm::vec3 UL, UR, LL, LR;
+	glm::vec3 ka, kd, ks, kr;
+	float shiny;
 	int width, height, maxdepth;
 	list<Light*> lights;
 	list<Shape*> shapes;
@@ -38,4 +40,8 @@ public:
 	void trace(Ray &, int, glm::vec3 *);
 	bool intersect_checker(Ray&);
 	glm::vec3 shading(LocalGeo, BRDF, Ray, glm::vec3);
+	void add_ambient(glm::vec3);
+	void add_diffuse(glm::vec3);
+	void add_specular(glm::vec3);
+	void add_shininess(float);
 };
