@@ -165,8 +165,8 @@ int main(int argc, char *argv[]) {
 			//  Deﬁnes a sphere with a given position and radius.
 			else if(!splitline[0].compare("sphere")) {
 				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[1].c_str());
-				float z = atof(splitline[1].c_str());
+				float y = atof(splitline[2].c_str());
+				float z = atof(splitline[3].c_str());
 				float r = atof(splitline[4].c_str());
 				// Create new sphere:
 				//   Store 4 numbers

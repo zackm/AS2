@@ -9,6 +9,8 @@
 #pragma once
 #include "BRDF.h"
 
+#include "Sphere.h"
+
 #include "Shape.h"
 
 #pragma once
@@ -61,7 +63,7 @@ void Scene::render(Camera c, Film kodak) {
 			color[1] = 0;
 			color[2] = 0;
 			trace(ray,0,&color);
-			kodak.commit(i, j, color);
+			kodak.commit(width-i, height-j, color);
 		}
 	}
 	kodak.writeImage();
@@ -101,16 +103,11 @@ void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
 		return;
 	}
 
-	color->x = 1;
-	color->y = 0;
-	color->z = .5;
-	return;
-
 	// obtain BRDF at intersection point
 	// BRDF brdf = best_shape.brdf;
 	glm::vec3 ka(1,1,1);
 	glm::vec3 kd(1,0,0);
-	glm::vec3 ks(1,1,0);
+	glm::vec3 ks(1,0,0);
 	glm::vec3 kr(0,0,0);
 	BRDF brdf(ka,kd,ks,kr);
 
@@ -122,32 +119,25 @@ void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
 
 	for (std::list<Light*>::iterator iter=lights.begin(); iter != lights.end(); ++iter) {
 		Light* l = *iter;
+		float thit;
+		LocalGeo test_geo;
+
 		(*l).generateLightRay(local,&lray,&lcolor);
-		//cout<<(*l).direction[2];
+
 		if (!intersect_checker(lray)) {
-			cout<<'h';
-			color->x = 1;
-			color->y = 0;
-			color->z = .5;
-			return;
-			// If not, do shading calculation for this light source
 			*color += shading(local, brdf, lray, lcolor);
 		}
 	}
-
-	// Handle mirror reflection
-	// if (brdf.kr > 0) {
-	// 	reflectRay = createReflectRay(in.local, ray);
-	// 	// Make a recursive call to trace the reflected ray
-	// 	trace(reflectRay, depth+1, &tempColor);
-	// 	*color += brdf.kr * tempColor;
-	// }
 }
 
-bool Scene::intersect_checker(Ray & r) {
+bool Scene::intersect_checker(Ray& r){
+	float thit = 0;
+	LocalGeo local;
 	for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
 		Shape* s =  *iter;
-		if ((*s).intersect(r)) {
+		if ((*s).intersect(r,&thit,&local)) {
+			//cout<<thit;
+			//cin.get();
 			return true;
 		}
 	}
@@ -176,10 +166,10 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	//still need viewer vector. I'm just going to pick (0,0,1)
 	//Need to change this later.
 	//Change view to direction to camera
-	glm::vec3 view(0,0,1);
+	glm::vec3 view = eye_position-local.point;
 	float specular = glm::dot(r_vec,view);
 	specular = glm::max(specular,0.0f);
-	specular = glm::pow(specular,20.f);//need to change 20 to p coefficient.
+	specular = glm::pow(specular,20.0f);//need to change 20 to p coefficient.
 
 	glm::vec3 out_color;
 	out_color[0] = (brdf.ka[0]+brdf.kd[0]*diffuse+brdf.ks[0]*specular)*lcolor[0];
@@ -195,3 +185,46 @@ void Scene::add_shape(Shape* s) {
 void Scene::add_light(Light* l) {
 	lights.push_front(l);
 }
+
+//int main(char argc, char* argv[]){
+//	//Generate a light
+//	DirectionalLight test1(glm::vec3(0,0,-2), glm::vec3(0,0,1));
+//
+//	//Generate a Ray
+//	glm::vec3 camera_pos(0,0,1.2f);
+//	glm::vec3 dir(0,0,-1);
+//	Ray init_ray(camera_pos,dir,0,100);
+//
+//	//Generate a sphere
+//	Sphere sphere_test(glm::vec3(0,0,0),1.0f);
+//
+//	//Test the init_ray with the sphere
+//	bool hit;
+//	LocalGeo geo_test;
+//	float t_hit;
+//	hit = sphere_test.intersect(init_ray,&t_hit,&geo_test);
+//	cout<<geo_test.point[2]<<endl;
+//	cout<<t_hit<<endl;
+//	cin.get();
+//
+//
+//	//Generate a light ray for this local geo
+//	Ray lray;
+//	glm::vec3 lcolor(0,0,0);
+//	test1.generateLightRay(geo_test,&lray,&lcolor);
+//	cout<<lray.position[0]<<','<<lray.position[1]<<','<<lray.position[2]<<endl;
+//	cout<<lray.direction[0]<<','<<lray.direction[1]<<','<<lray.direction[2]<<endl;
+//	cout<<lray.t_min<<','<<lray.t_max<<endl;
+//	cin.get();
+//
+//	//Test light ray intersection with the same sphere
+//	float t_hit2 = 0;
+//	LocalGeo geo_test2;
+//	bool hit2;
+//	hit2 = sphere_test.intersect(lray,&t_hit2,&geo_test2);
+//	cout<<hit2<<endl;
+//	cout<<t_hit2;
+//	cin.get();
+//
+//	return 0;
+//}
