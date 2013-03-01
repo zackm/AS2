@@ -22,6 +22,17 @@ Film::Film(int width, int height, int BitsPerPixel, std::string fname) {
 
 void Film::commit(int x, int y, glm::vec3 color) {
 	RGBQUAD free_image_color;
+
+	if (color[0] > 1.0f) {
+		color[0] = 1.0f;
+	}
+	if (color[1] > 1.0f) {
+		color[1] = 1.0f;
+	}
+	if (color[2] > 1.0f) {
+		color[2] = 1.0f;
+	}
+	
 	free_image_color.rgbRed = color[0] * 255.0f;
 	free_image_color.rgbGreen = color[1] * 255.0f;
 	free_image_color.rgbBlue = color[2] * 255.0f;

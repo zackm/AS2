@@ -30,7 +30,8 @@ bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
 	glm::vec3 matrix_point = ray.position-a; //these formulae from slides
 
 	glm::mat3 bary_matrix(vec1[0],vec2[0],vec3[0],vec1[1],vec2[1],vec3[1],vec1[2],vec2[2],vec3[2]);
-
+	// glm::mat3 bary_matrix(vec1[0],vec1[1],vec1[2],vec2[0],vec2[1],vec2[2],vec3[0],vec3[1],vec3[2]);
+	
 	float determ = glm::determinant(bary_matrix);
 	if (determ==0){
 		return false;
@@ -51,7 +52,7 @@ bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
 		glm::vec3 normal = glm::cross(vec1,vec2);
 		normal /= glm::sqrt(glm::dot(normal,normal));
 		local->normal = normal;
-		local->point = ray.position+*thit*ray.direction;
+		local->point = ray.position+(*thit)*ray.direction;
 		return true;
 	}else{
 		return false;

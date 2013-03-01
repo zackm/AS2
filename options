@@ -1,6 +1,7 @@
 size 500 500
-camera 0.0f 0.0f -11f 0.0f 0.0f -1.0f 0.0f 1.0f 0.0f 90
+camera 0.0f 0.0f -10f 0.0f 0.0f -1.0f 0.0f 1.0f 0.0f 90
 
+shininess 50
 ambient .1f .1f .1f
 diffuse 1 0 1
 specular 1 1 1
@@ -26,6 +27,5 @@ tri 0 1 2
 directional .577f -.577f -.577f 1 1 1
 directional .577f .577f -.577f 0 0 1
 
-shininess 50
 output test.png
 maxdepth 2

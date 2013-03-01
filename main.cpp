@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
 	vector<glm::vec3> vertexnorm_n;
 	glm::vec3 ka(.2f, .2f, .2f);
 	glm::vec3 kd,ks,kr;
-	float sp;
+	float sp = 1;
 
 	// Arg Parser
 	std::ifstream inpfile(filename.c_str());
@@ -194,7 +194,7 @@ int main(int argc, char *argv[]) {
 				//   Store 4 numbers
 				//   Store current property values
 				//   Store current top of matrix stack
-				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,ks,kd,kr,sp);
+				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,sp);
 				s.add_shape(sph);
 			}
 

@@ -110,12 +110,6 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 			break;
 		}
 
-		// obtain BRDF at intersection point
-		// BRDF brdf = best_shape.brdf;
-		// BRDF brdf(ka,kd,ks,kr);
-
-		//in.primitive->getBRDF(in.local, &brdf);
-
 		//There is an intersection, loop through all light sources
 		Ray lray;
 		glm::vec3 lcolor(0.0f,0.0f,0.0f);
@@ -232,7 +226,6 @@ void Scene::add_shape(Shape* s) {
 void Scene::add_light(Light* l) {
 	lights.push_front(l);
 }
-
 
 
 
