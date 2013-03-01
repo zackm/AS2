@@ -23,27 +23,27 @@ using namespace std;
 Scene::Scene(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
 			 glm::vec3 LR_arg, int w,int h,int d) {
 
-				 eye_position = eye;
-				 UL = UL_arg;
-				 UR = UR_arg;
-				 LL = LL_arg;
-				 LR = LR_arg;
-				 width = w;
-				 height = h;
-				 maxdepth = d;
+	eye_position = eye;
+	UL = UL_arg;
+	UR = UR_arg;
+	LL = LL_arg;
+	LR = LR_arg;
+	width = w;
+	height = h;
+	maxdepth = d;
 }
 
 void Scene::set_params(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
 					   glm::vec3 LR_arg, int w,int h,int d) {
 
-						   eye_position = eye;
-						   UL = UL_arg;
-						   UR = UR_arg;
-						   LL = LL_arg;
-						   LR = LR_arg;
-						   width = w;
-						   height = h;
-						   maxdepth = d;
+	eye_position = eye;
+	UL = UL_arg;
+	UR = UR_arg;
+	LL = LL_arg;
+	LR = LR_arg;
+	width = w;
+	height = h;
+	maxdepth = d;
 }
 
 void Scene::render(Camera c, Film kodak) {
@@ -89,7 +89,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 		float thit = std::numeric_limits<float>::infinity();
 		LocalGeo local;
 		Shape* best_shape;
-
+		BRDF brdf;
 		bool no_hit = true;
 		for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
 			Shape* s = *iter;
@@ -101,6 +101,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 				local = current_local;
 				no_hit = false;
 				best_shape = s;
+				brdf = s->get_brdf();
 			}
 		}
 
@@ -111,7 +112,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 		// obtain BRDF at intersection point
 		// BRDF brdf = best_shape.brdf;
-		BRDF brdf(ka,kd,ks,kr);
+		// BRDF brdf(ka,kd,ks,kr);
 
 		//in.primitive->getBRDF(in.local, &brdf);
 
@@ -137,6 +138,14 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 		reflection_coef *= brdf.ks; //should be brdf.kr
 		i++;
 	}
+
+	// recursive way
+	// if (glm::dot(brdf.kr,brdf.kr) > 0) {
+	// 	Ray reflectRay = createReflectRay(local, r);
+	// 	glm::vec3 temp_color;
+	// 	trace(reflectRay, depth+1, &temp_color);
+	// 	*color += brdf.kr * temp_color;
+	// }
 }
 
 void Scene::generateReflectionRay(LocalGeo &local,Ray& ray){
@@ -191,13 +200,26 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	}
 	float specular = glm::dot(r_vec,view);
 	specular = glm::max(specular,0.0f);
-	specular = glm::pow(specular,30.0f);//need to change 20 to p coefficient. (variable called shiny)
+	specular = glm::pow(specular,shiny);//need to change 20 to p coefficient. (variable called shiny)
 
 	glm::vec3 out_color;
 	out_color[0] = (brdf.ka[0]+brdf.kd[0]*diffuse+brdf.ks[0]*specular)*lcolor[0];
 	out_color[1] = (brdf.ka[1]+brdf.kd[1]*diffuse+brdf.ks[1]*specular)*lcolor[1];
 	out_color[2] = (brdf.ka[2]+brdf.kd[2]*diffuse+brdf.ks[2]*specular)*lcolor[2];
 	return out_color;
+}
+
+Ray Scene::createReflectRay(LocalGeo local, Ray r) {
+	Ray new_ray;
+	// r = d - 2(d * n) n
+	// d is camera to point of reflection, r is reflected ray
+	glm::vec3 d = r.direction;
+	glm::vec3 n = local.normal;
+	new_ray.position = local.point;
+	new_ray.direction = d - 2 * (glm::dot(d,n)) * n;
+	new_ray.t_min = 0;
+	new_ray.t_max = std::numeric_limits<float>::infinity();
+	return new_ray;
 }
 
 void Scene::add_shape(Shape* s) {

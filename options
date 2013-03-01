@@ -1,11 +1,31 @@
-size 400 400
-camera 0.0f 0.0f 1.2f 0.0f 0.0f -1.0f 0.0f 1.0f 0.0f 90
-sphere 0 0 0 .6f
-directional 0 0 -2 1 0 0
-directional -1 0 -2 1 0 0
-ambient 1 0 1
-diffuse 1 0 0
-specular 0 0 0
-shininess 30
+size 500 500
+camera 0.0f 0.0f -11f 0.0f 0.0f -1.0f 0.0f 1.0f 0.0f 90
+
+ambient .1f .1f .1f
+diffuse 1 0 1
+specular 1 1 1
+reflect 0 0 0
+sphere 0 0 -20 3
+
+diffuse 1 1 0
+reflect 0 0 0
+sphere -2 2 -15 1
+
+diffuse 0 1 1
+reflect 0 0 0
+sphere -2 -2 -15 1
+
+diffuse .1f .1f .1f
+specular 1 1 1
+reflect 1 1 1
+vertex 5 5 -17
+vertex 1 4 -20
+vertex 6 -1 -20
+tri 0 1 2
+
+directional .577f -.577f -.577f 1 1 1
+directional .577f .577f -.577f 0 0 1
+
+shininess 50
 output test.png
-maxdepth 1
+maxdepth 5

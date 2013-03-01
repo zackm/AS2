@@ -14,11 +14,18 @@ Sphere::Sphere(void){
 	center = glm::vec3(0,0,0);
 }
 
-Sphere::Sphere(glm::vec3 arg_center, float arg_radius){
+Sphere::Sphere(glm::vec3 arg_center, float arg_radius,glm::vec3 a,glm::vec3 d,glm::vec3 s,glm::vec3 r){
 	center = arg_center;
 	radius = arg_radius;
+	brdf.ka = a;
+	brdf.kd = d;
+	brdf.ks = s;
+	brdf.kr = r;
 }
 
+BRDF Sphere::get_brdf() {
+	return brdf;
+}
 
 bool Sphere::intersect(Ray& ray, float* thit,LocalGeo* local){
 	float a = glm::dot(ray.direction, ray.direction);

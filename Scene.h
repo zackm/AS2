@@ -48,4 +48,5 @@ public:
 	void add_diffuse(glm::vec3);
 	void add_specular(glm::vec3);
 	void add_shininess(float);
+	Ray createReflectRay(LocalGeo, Ray);
 };

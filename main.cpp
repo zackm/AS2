@@ -128,8 +128,6 @@ int main(int argc, char *argv[]) {
 	cout << "Filename " << filename << " found." << endl;
 	int WIDTH = 400;
 	int HEIGHT = 400;
-	//std::list<Light> lights;
-	//std::vector<Primitive*> primitive_list;
 
 	Scene s;
 	Camera c;
@@ -138,7 +136,8 @@ int main(int argc, char *argv[]) {
 	vector<glm::vec3> vertices;
 	vector<glm::vec3> vertexnorm_v;
 	vector<glm::vec3> vertexnorm_n;
-	glm::vec3 ka,kd,ks,kr;
+	glm::vec3 ka(.2f, .2f, .2f);
+	glm::vec3 kd,ks,kr;
 	float sp;
 
 	// Arg Parser
@@ -195,7 +194,7 @@ int main(int argc, char *argv[]) {
 				//   Store 4 numbers
 				//   Store current property values
 				//   Store current top of matrix stack
-				Sphere* sph = new Sphere(glm::vec3(x,y,z),r);
+				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,ks,kd,kr);
 				// add current ka, kd, ks, kr to sphere as brdf?
 				s.add_shape(sph);
 			}
@@ -257,7 +256,7 @@ int main(int argc, char *argv[]) {
 				//   Store 3 integers to index into array
 				//   Store current property values
 				//   Store current top of matrix stack
-				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3]);
+				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3],ka,kd,ks,kr);
 				s.add_shape(t);
 			}
 
@@ -355,6 +354,16 @@ int main(int argc, char *argv[]) {
 				ks = glm::vec3(r,g,b);
 				s.add_specular(ks); // remove later
 			}
+
+			//reflection r g b 
+			//  speciﬁes the reflecti color of the surface.
+			else if(!splitline[0].compare("reflect")) {
+				float r = atof(splitline[1].c_str());
+				float g = atof(splitline[2].c_str());
+				float b = atof(splitline[3].c_str());
+				kr = glm::vec3(r,g,b);
+				// s.add_reflective(kr); // remove later
+			}			
 
 			//shininess s
 			//  speciﬁes the shininess of the surface.
