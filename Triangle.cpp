@@ -5,11 +5,11 @@
 
 using namespace std;
 
-Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 a,glm::vec3 d,glm::vec3 s,glm::vec3 r,float sp){
+Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 ka,glm::vec3 d,glm::vec3 s,glm::vec3 r,float sp){
 	a = arg_a;
 	b = arg_b;
 	c = arg_c;
-	brdf.ka = a;
+	brdf.ka = ka;
 	brdf.kd = d;
 	brdf.ks = s;
 	brdf.kr = r;
@@ -30,7 +30,6 @@ bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
 	glm::vec3 matrix_point = ray.position-a; //these formulae from slides
 
 	glm::mat3 bary_matrix(vec1[0],vec2[0],vec3[0],vec1[1],vec2[1],vec3[1],vec1[2],vec2[2],vec3[2]);
-	// glm::mat3 bary_matrix(vec1[0],vec1[1],vec1[2],vec2[0],vec2[1],vec2[2],vec3[0],vec3[1],vec3[2]);
 	
 	float determ = glm::determinant(bary_matrix);
 	if (determ==0){
