@@ -1,7 +1,7 @@
 /*
-	CS184 Assignment 2 - Ray Tracing
-	Tyler Brabham cs184-ej
-	Zack Mayeda cs184-bg
+CS184 Assignment 2 - Ray Tracing
+Tyler Brabham cs184-ej
+Zack Mayeda cs184-bg
 */
 
 /*
@@ -77,8 +77,8 @@
 */
 
 #include "glm/glm.hpp"
-	// OpenGL Math Library
-	// http://glm.g-truc.net/code.html
+// OpenGL Math Library
+// http://glm.g-truc.net/code.html
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -146,10 +146,10 @@ int main(int argc, char *argv[]) {
 	if(!inpfile.is_open()) {
 		std::cout << "Unable to open file" << std::endl;
 	} else {
-	    std::string line;
-	    //MatrixStack mst;
-	    while(inpfile.good()) {
-	     	std::vector<std::string> splitline;
+		std::string line;
+		//MatrixStack mst;
+		while(inpfile.good()) {
+			std::vector<std::string> splitline;
 			std::string buf;
 			std::getline(inpfile,line);
 			std::stringstream ss(line);
@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
 			else if(!splitline[0].compare("size")) {
 				WIDTH = atoi(splitline[1].c_str());
 				HEIGHT = atoi(splitline[2].c_str());
-    		}
+			}
 
 			//maxdepth depth
 			//  max # of bounces for ray (default 5)
@@ -293,7 +293,7 @@ int main(int argc, char *argv[]) {
 				DirectionalLight* dl = new DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b));
 				s.add_light(dl);
 			}
-			
+
 			//point x y z r g 
 			//  The location of a point source and the color, as in OpenGL.
 			else if(!splitline[0].compare("point")) {
@@ -303,7 +303,8 @@ int main(int argc, char *argv[]) {
 				float r = atof(splitline[4].c_str());
 				float g = atof(splitline[5].c_str());
 				float b = atof(splitline[6].c_str());
-				//s.add_light(PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b)));
+				PointLight* pt = new PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b));
+				s.add_light(pt);
 			}
 
 			// camera lookfromx lookfromy lookfromz lookatx lookaty lookatz upx upy upz fov
@@ -369,15 +370,15 @@ int main(int argc, char *argv[]) {
 	}
 	// End Arg Parser
 
-    //Primitive collection pc(primitive_list);
-    int BitsPerPixel = 24;
-    Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel, output_name);
+	//Primitive collection pc(primitive_list);
+	int BitsPerPixel = 24;
+	Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel, output_name);
 
-    glm::vec3 UL,UR,LL,LR;
+	glm::vec3 UL,UR,LL,LR;
 
 	c.cornerVectors(&UL,&UR,&LL,&LR,WIDTH,HEIGHT);
-    s.set_params(c.position,UL,UR,LL,LR,WIDTH,HEIGHT,maxdepth);
-    s.render(c,canvas);
+	s.set_params(c.position,UL,UR,LL,LR,WIDTH,HEIGHT,maxdepth);
+	s.render(c,canvas);
 
 	return 0;
 }

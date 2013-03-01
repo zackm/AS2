@@ -21,8 +21,6 @@ Sphere::Sphere(glm::vec3 arg_center, float arg_radius){
 
 
 bool Sphere::intersect(Ray& ray, float* thit,LocalGeo* local){
-	//cout<<ray.direction[1];
-
 	float a = glm::dot(ray.direction, ray.direction);
 
 	glm::vec3 b_vec = ray.position-center;
@@ -37,19 +35,19 @@ bool Sphere::intersect(Ray& ray, float* thit,LocalGeo* local){
 	}
 
 	float addit = glm::sqrt(discrim);
-	float root1 = -b+addit;
-	float root2 = -b-addit;
+	float root1 = (-b+addit)/(2.0f*a);
+	float root2 = (-b-addit)/(2.0f*a);
 
 	if (root1<ray.t_min){
 		if (root2<ray.t_min){
 			return false; //negative solutions
 		}else{
-			*thit = root2/(2.0f*a);
+			*thit = root2;
 		}
 	}else if(root2<ray.t_min){
-		*thit = root1/(2.0f*a);
+		*thit = root1;
 	}else{
-		*thit = glm::min(root1,root2)/(2.0f*a);
+		*thit = glm::min(root1,root2);
 	}
 
 	local->point = ray.position+(*thit)*ray.direction;
@@ -73,8 +71,8 @@ bool Sphere::intersect(Ray& ray){
 	}
 
 	float addit = glm::sqrt(discrim);
-	float root1 = -b+addit;
-	float root2 = -b-addit;
+	float root1 = (-b+addit)/(2.0f*a);
+	float root2 = (-b-addit)/(2.0f*a);
 
 	if (root1<ray.t_min){
 		if (root2<ray.t_min){
@@ -83,6 +81,19 @@ bool Sphere::intersect(Ray& ray){
 	}
 	return true;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //int main (int argc, char* argv[]){
 //	glm::vec3 v(0,0,0);

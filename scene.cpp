@@ -63,8 +63,8 @@ void Scene::render(Camera c, Film kodak) {
 
 		for (int j = 0; j < height; j++) {
 
-			u = (float(i-(width/2))/width)+.5;
-			v = (float(j-(height/2))/height)+.5;
+			u = float(float(i+.5)/width);
+			v = float(float(j+.5)/height);
 
 			pix_pos = u*(v*LL+(1-v)*UL)+(1-u)*(v*LR+(1-v)*UR);
 
@@ -72,8 +72,9 @@ void Scene::render(Camera c, Film kodak) {
 			color[0] = 0;
 			color[1] = 0;
 			color[2] = 0;
-			trace(ray,0,&color); // add loop for depth of ray
-			kodak.commit(width - i, height - j, color);
+
+			trace(ray,0,&color);
+			kodak.commit(width-i, height-j, color);
 		}
 	}
 	cout << "*" << endl;
@@ -145,8 +146,6 @@ bool Scene::intersect_checker(Ray& r){
 	for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
 		Shape* s =  *iter;
 		if ((*s).intersect(r,&thit,&local)) {
-			//cout<<thit;
-			//cin.get();
 			return true;
 		}
 	}
@@ -172,9 +171,6 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	diffuse = glm::max(diffuse,0.0f);
 
 	//Calculate the specular component
-	//still need viewer vector. I'm just going to pick (0,0,1)
-	//Need to change this later.
-	//Change view to direction to camera
 	glm::vec3 view = eye_position-local.point;
 	float view_norm = glm::dot(view,view);
 	if (view_norm > 0.0f) {
@@ -182,7 +178,7 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	}
 	float specular = glm::dot(r_vec,view);
 	specular = glm::max(specular,0.0f);
-	specular = glm::pow(specular,20.0f);//need to change 20 to p coefficient. (variable called shiny)
+	specular = glm::pow(specular,30.0f);//need to change 20 to p coefficient. (variable called shiny)
 
 	glm::vec3 out_color;
 	out_color[0] = (brdf.ka[0]+brdf.kd[0]*diffuse+brdf.ks[0]*specular)*lcolor[0];
@@ -212,6 +208,11 @@ void Scene::add_specular(glm::vec3 s) {
 void Scene::add_shininess(float s) {
 	shiny = s;
 }
+
+
+
+
+
 
 //int main(char argc, char* argv[]){
 //	//Generate a light
