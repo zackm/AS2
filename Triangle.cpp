@@ -5,7 +5,7 @@
 
 using namespace std;
 
-Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 a,glm::vec3 d,glm::vec3 s,glm::vec3 r){
+Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 a,glm::vec3 d,glm::vec3 s,glm::vec3 r,float sp){
 	a = arg_a;
 	b = arg_b;
 	c = arg_c;
@@ -13,6 +13,7 @@ Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 a,g
 	brdf.kd = d;
 	brdf.ks = s;
 	brdf.kr = r;
+	brdf.shiny = sp;
 }
 
 BRDF Triangle::get_brdf() {

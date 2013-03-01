@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
 
 	Scene s;
 	Camera c;
-	int maxdepth;
+	int maxdepth = 5;
 	std::string output_name;
 	vector<glm::vec3> vertices;
 	vector<glm::vec3> vertexnorm_v;
@@ -194,8 +194,7 @@ int main(int argc, char *argv[]) {
 				//   Store 4 numbers
 				//   Store current property values
 				//   Store current top of matrix stack
-				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,ks,kd,kr);
-				// add current ka, kd, ks, kr to sphere as brdf?
+				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,ks,kd,kr,sp);
 				s.add_shape(sph);
 			}
 
@@ -256,7 +255,7 @@ int main(int argc, char *argv[]) {
 				//   Store 3 integers to index into array
 				//   Store current property values
 				//   Store current top of matrix stack
-				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3],ka,kd,ks,kr);
+				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3],ka,kd,ks,kr,sp);
 				s.add_shape(t);
 			}
 
@@ -332,7 +331,6 @@ int main(int argc, char *argv[]) {
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
 				ka = glm::vec3(r,g,b);
-				s.add_ambient(ka); // remove later
 			}
 
 			//diﬀuse r g b
@@ -342,7 +340,6 @@ int main(int argc, char *argv[]) {
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
 				kd = glm::vec3(r,g,b);
-				s.add_diffuse(kd); // remove later
 			}
 
 			//specular r g b 
@@ -352,7 +349,6 @@ int main(int argc, char *argv[]) {
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
 				ks = glm::vec3(r,g,b);
-				s.add_specular(ks); // remove later
 			}
 
 			//reflection r g b 
@@ -362,15 +358,12 @@ int main(int argc, char *argv[]) {
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
 				kr = glm::vec3(r,g,b);
-				// s.add_reflective(kr); // remove later
 			}			
 
 			//shininess s
 			//  speciﬁes the shininess of the surface.
 			else if(!splitline[0].compare("shininess")) {
-				float spec = atof(splitline[1].c_str());
-				sp = spec;
-				s.add_shininess(spec); // remove later
+				sp = atof(splitline[1].c_str());
 			} else {
 				std::cerr << "Unknown command: " << splitline[0] << std::endl;
 			}

@@ -135,7 +135,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 		//generate reflection ray and repeat
 		//do this by resetting r.
 		generateReflectionRay(local,r);
-		reflection_coef *= brdf.ks; //should be brdf.kr
+		reflection_coef *= brdf.kr; //should be brdf.kr
 		i++;
 	}
 
@@ -200,7 +200,7 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	}
 	float specular = glm::dot(r_vec,view);
 	specular = glm::max(specular,0.0f);
-	specular = glm::pow(specular,shiny);//need to change 20 to p coefficient. (variable called shiny)
+	specular = glm::pow(specular,brdf.shiny);//need to change 20 to p coefficient. (variable called shiny)
 
 	glm::vec3 out_color;
 	out_color[0] = (brdf.ka[0]+brdf.kd[0]*diffuse+brdf.ks[0]*specular)*lcolor[0];
@@ -215,6 +215,9 @@ Ray Scene::createReflectRay(LocalGeo local, Ray r) {
 	// d is camera to point of reflection, r is reflected ray
 	glm::vec3 d = r.direction;
 	glm::vec3 n = local.normal;
+	d = d/glm::sqrt(glm::dot(d,d));
+	n = n/glm::sqrt(glm::dot(n,n));
+
 	new_ray.position = local.point;
 	new_ray.direction = d - 2 * (glm::dot(d,n)) * n;
 	new_ray.t_min = 0;
@@ -229,21 +232,6 @@ void Scene::add_shape(Shape* s) {
 void Scene::add_light(Light* l) {
 	lights.push_front(l);
 }
-
-// remove following methods
-void Scene::add_ambient(glm::vec3 a) {
-	ka = a;
-}
-void Scene::add_diffuse(glm::vec3 d) {
-	kd = d;
-}
-void Scene::add_specular(glm::vec3 s) {
-	ks = s;
-}
-void Scene::add_shininess(float s) {
-	shiny = s;
-}
-
 
 
 

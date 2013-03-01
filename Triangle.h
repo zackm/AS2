@@ -6,7 +6,7 @@ public:
 	//Three vertices denote the triangle
 	glm::vec3 a,b,c;
 
-	Triangle(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3);
+	Triangle(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,float);
 	bool intersect(Ray&, float*, LocalGeo*);
 	bool intersect(Ray&);
 	Triangle(void){};
