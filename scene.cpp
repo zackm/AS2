@@ -73,7 +73,7 @@ void Scene::render(Camera c, Film kodak) {
 			color[1] = 0;
 			color[2] = 0;
 
-			trace(ray,0,&color);
+			trace(ray,&color);
 			kodak.commit(width-i, height-j, color);
 		}
 	}
@@ -81,71 +81,84 @@ void Scene::render(Camera c, Film kodak) {
 	kodak.writeImage();
 }
 
-void Scene::trace(Ray &r, int depth, glm::vec3 *color) {
-	float thit = std::numeric_limits<float>::infinity();
-	LocalGeo local;
-	Shape* best_shape;
-	if (depth > maxdepth) {
-		color->x = 0;
-		color->y = 0;
-		color->z = 0;
-		return;
-	}
+void Scene::trace(Ray &r, glm::vec3 *color) {
+	int i = 0;
+	glm::vec3 reflection_coef(1.0f,1.0f,1.0f);
 
-	bool no_hit = true;
-	for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
-		Shape* s = *iter;
-		float current_T;
-		LocalGeo current_local;
-		bool hit = (*s).intersect(r, &current_T, &current_local);
-		if (current_T < thit && hit) {
-			thit = current_T;
-			local = current_local;
-			no_hit = false;
-			best_shape = s;
+	while (i<maxdepth){
+		float thit = std::numeric_limits<float>::infinity();
+		LocalGeo local;
+		Shape* best_shape;
+
+		bool no_hit = true;
+		for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
+			Shape* s = *iter;
+			float current_T;
+			LocalGeo current_local;
+			bool hit = (*s).intersect(r, &current_T, &current_local);
+			if (current_T < thit && hit) {
+				thit = current_T;
+				local = current_local;
+				no_hit = false;
+				best_shape = s;
+			}
 		}
-	}
 
-	if (no_hit) {
-		color->x = 0;
-		color->y = 0;
-		color->z = 0;
-		return;
-	}
-
-	// obtain BRDF at intersection point
-	// BRDF brdf = best_shape.brdf;
-	// glm::vec3 ka(.2f,.2f,.1f);
-	// glm::vec3 kd(1,0,0);
-	// glm::vec3 ks(1,0,0);
-	// glm::vec3 kr(0,0,0);
-	BRDF brdf(ka,kd,ks,kr);
-
-	//in.primitive->getBRDF(in.local, &brdf);
-
-	//// There is an intersection, loop through all light sources
-	Ray lray;
-	glm::vec3 lcolor(0.0f,0.0f,0.0f);
-
-	for (std::list<Light*>::iterator iter=lights.begin(); iter != lights.end(); ++iter) {
-		Light* l = *iter;
-		float thit;
-		LocalGeo test_geo;
-
-		(*l).generateLightRay(local,&lray,&lcolor);
-
-		if (!intersect_checker(lray)) {
-			*color += shading(local, brdf, lray, lcolor);
+		if (no_hit) {
+			//should break loop I think
+			break;
 		}
+
+		// obtain BRDF at intersection point
+		// BRDF brdf = best_shape.brdf;
+		BRDF brdf(ka,kd,ks,kr);
+
+		//in.primitive->getBRDF(in.local, &brdf);
+
+		//There is an intersection, loop through all light sources
+		Ray lray;
+		glm::vec3 lcolor(0.0f,0.0f,0.0f);
+
+		for (std::list<Light*>::iterator iter=lights.begin(); iter != lights.end(); ++iter) {
+			Light* l = *iter;
+			float thit;
+			LocalGeo test_geo;
+
+			(*l).generateLightRay(local,&lray,&lcolor);
+
+			if (!intersect_checker(lray)) {
+				*color += reflection_coef*shading(local, brdf, lray, lcolor);
+			}
+		}
+
+		//generate reflection ray and repeat
+		//do this by resetting r.
+		generateReflectionRay(local,r);
+		reflection_coef *= brdf.ks; //should be brdf.kr
+		i++;
 	}
 }
 
+void Scene::generateReflectionRay(LocalGeo &local,Ray& ray){
+	glm::vec3 normal = local.normal;
+	glm::vec3 direction = ray.direction;
+
+	//probably should check length
+	normal = normal/(glm::sqrt(glm::dot(normal,normal)));
+	direction = normal/(glm::sqrt(glm::dot(direction,direction)));
+
+	glm::vec3 reflection = -direction+2*glm::dot(direction,normal)*normal;
+
+	ray.direction = reflection;
+	ray.position = local.point;
+	ray.t_min = .001; //probably should be something else
+	ray.t_max = 1000000; //probably should be large
+}
+
 bool Scene::intersect_checker(Ray& r){
-	float thit = 0;
-	LocalGeo local;
 	for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
 		Shape* s =  *iter;
-		if ((*s).intersect(r,&thit,&local)) {
+		if ((*s).intersect(r)) {
 			return true;
 		}
 	}
@@ -160,16 +173,16 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	normal = normal*(1/glm::sqrt(glm::dot(normal,normal)));
 	light_direction = light_direction*(1/glm::sqrt(glm::dot(light_direction,light_direction)));
 
-	glm::vec3 r_vec = -light_direction+2*glm::dot(light_direction,normal)*normal;
+	//Calculate the diffuse component
+	float diffuse = glm::dot(normal,light_direction);
+
+	glm::vec3 r_vec = -light_direction+2*diffuse*normal;
 	float r_norm = glm::dot(r_vec,r_vec);
 	if (r_norm>0){
 		r_vec = r_vec/glm::sqrt(r_norm);
 	}
-
-	//Calculate the diffuse component
-	float diffuse = glm::dot(normal,light_direction);
 	diffuse = glm::max(diffuse,0.0f);
-
+	
 	//Calculate the specular component
 	glm::vec3 view = eye_position-local.point;
 	float view_norm = glm::dot(view,view);

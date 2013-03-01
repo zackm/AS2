@@ -37,8 +37,12 @@ public:
 	void render(Camera, Film);
 	void add_shape(Shape*);
 	void add_light(Light*);
-	void trace(Ray &, int, glm::vec3 *);
+
+	void generateReflectionRay(LocalGeo&,Ray&);
+	void trace(Ray &, glm::vec3 *);
 	bool intersect_checker(Ray&);
+
+
 	glm::vec3 shading(LocalGeo, BRDF, Ray, glm::vec3);
 	void add_ambient(glm::vec3);
 	void add_diffuse(glm::vec3);
