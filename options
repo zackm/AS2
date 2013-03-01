@@ -1,11 +1,11 @@
 size 400 400
 camera 0.0f 0.0f 1.2f 0.0f 0.0f -1.0f 0.0f 1.0f 0.0f 90
-sphere 0 0.2f 0 .5f
-directional 0 0 -2 1 0 .5f
-directional 0 0 -3 0 0 .5f
-ambient 1 0 .2f
-diffuse 1 0 .2f
-specular 0 0 .5f
+sphere 0 0 0 .6f
+directional 0 0 -2 1 0 0
+directional -1 0 -2 1 0 0
+ambient 1 0 1
+diffuse 1 0 0
+specular 0 0 0
 shininess 30
 output test.png
 maxdepth 1

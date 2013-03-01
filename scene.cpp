@@ -51,8 +51,18 @@ void Scene::render(Camera c, Film kodak) {
 	Ray ray;
 	glm::vec3 color;
 	glm::vec3 pix_pos;
+	float chunk = width / 10; // for progress indicator
+	float counter = width / 10; // for progress indicator
+	cout << "==========" << endl;
 	for (int i = 0; i < width; i++) {
+		// for progress indicator
+		if (i/1.0f > counter) {
+			cout << "*";
+			counter += chunk;
+		}
+
 		for (int j = 0; j < height; j++) {
+
 			u = (float(i-(width/2))/width)+.5;
 			v = (float(j-(height/2))/height)+.5;
 
@@ -62,10 +72,11 @@ void Scene::render(Camera c, Film kodak) {
 			color[0] = 0;
 			color[1] = 0;
 			color[2] = 0;
-			trace(ray,0,&color);
+			trace(ray,0,&color); // add loop for depth of ray
 			kodak.commit(width - i, height - j, color);
 		}
 	}
+	cout << "*" << endl;
 	kodak.writeImage();
 }
 
@@ -188,6 +199,7 @@ void Scene::add_light(Light* l) {
 	lights.push_front(l);
 }
 
+// remove following methods
 void Scene::add_ambient(glm::vec3 a) {
 	ka = a;
 }

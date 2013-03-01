@@ -68,9 +68,6 @@
 	+ Light Commands
 	- directional x y z r g b : direction to light source and color
 	- point x y z r g b : location of point source and color
-	- attenuation const linear quadratic : sets the constant, linear, and quadratic
-	  attenuations (default 1, 0 0) as in OpenGL. By default there is no attenuation
-	  (the constant term is 1)
 	- ambient r g b : the global ambient color to be added to each object (defaul .2, .2, .2)
 	+ Material Commands
 	- diffuse r g b : diffuse color of surface
@@ -141,6 +138,8 @@ int main(int argc, char *argv[]) {
 	vector<glm::vec3> vertices;
 	vector<glm::vec3> vertexnorm_v;
 	vector<glm::vec3> vertexnorm_n;
+	glm::vec3 ka,kd,ks,kr;
+	float sp;
 
 	// Arg Parser
 	std::ifstream inpfile(filename.c_str());
@@ -197,6 +196,7 @@ int main(int argc, char *argv[]) {
 				//   Store current property values
 				//   Store current top of matrix stack
 				Sphere* sph = new Sphere(glm::vec3(x,y,z),r);
+				// add current ka, kd, ks, kr to sphere as brdf?
 				s.add_shape(sph);
 			}
 
@@ -324,15 +324,6 @@ int main(int argc, char *argv[]) {
 				c.fov = fov;
 			}
 
-			//attenuation const linear quadratic
-			//  Sets the constant, linear and quadratic attenuations 
-			//  (default 1,0,0) as in OpenGL.
-			else if(!splitline[0].compare("attenuation")) {
-				// const: atof(splitline[1].c_str())
-				// linear: atof(splitline[2].c_str())
-				// quadratic: atof(splitline[3].c_str())
-			}
-
 			//ambient r g b
 			//  The global ambient color to be added for each object 
 			//  (default is .2,.2,.2)
@@ -340,7 +331,8 @@ int main(int argc, char *argv[]) {
 				float r = atof(splitline[1].c_str());
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
-				s.add_ambient(glm::vec3(r,g,b));
+				ka = glm::vec3(r,g,b);
+				s.add_ambient(ka); // remove later
 			}
 
 			//diﬀuse r g b
@@ -349,7 +341,8 @@ int main(int argc, char *argv[]) {
 				float r = atof(splitline[1].c_str());
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
-				s.add_diffuse(glm::vec3(r,g,b));
+				kd = glm::vec3(r,g,b);
+				s.add_diffuse(kd); // remove later
 			}
 
 			//specular r g b 
@@ -358,28 +351,22 @@ int main(int argc, char *argv[]) {
 				float r = atof(splitline[1].c_str());
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
-				s.add_specular(glm::vec3(r,g,b));
+				ks = glm::vec3(r,g,b);
+				s.add_specular(ks); // remove later
 			}
 
 			//shininess s
 			//  speciﬁes the shininess of the surface.
 			else if(!splitline[0].compare("shininess")) {
-				s.add_shininess(atof(splitline[1].c_str()));
-			}
-
-			//emission r g b
-			//  gives the emissive color of the surface.
-			else if(!splitline[0].compare("emission")) {
-				// r: atof(splitline[1].c_str())
-				// g: atof(splitline[2].c_str())
-				// b: atof(splitline[3].c_str())
-				// Update current properties
+				float spec = atof(splitline[1].c_str());
+				sp = spec;
+				s.add_shininess(spec); // remove later
 			} else {
-			std::cerr << "Unknown command: " << splitline[0] << std::endl;
+				std::cerr << "Unknown command: " << splitline[0] << std::endl;
 			}
 
-			}
-			}
+		}
+	}
 	// End Arg Parser
 
     //Primitive collection pc(primitive_list);
