@@ -317,10 +317,8 @@ int main(int argc, char *argv[]) {
 				float up_y = atof(splitline[8].c_str());
 				float up_z = atof(splitline[9].c_str());
 				float fov = atof(splitline[10].c_str());
-				c.position = glm::vec3(from_x,from_y,from_z);
-				c.direction = glm::vec3(to_x,to_y,to_z);
-				c.up = glm::vec3(up_x,up_y,up_z);
-				c.fov = fov;
+				Camera cam(glm::vec3(from_x,from_y,from_z),glm::vec3(to_x,to_y,to_z),glm::vec3(up_x,up_y,up_z),fov);
+				c = cam;
 			}
 
 			//ambient r g b
@@ -379,7 +377,7 @@ int main(int argc, char *argv[]) {
 	glm::vec3 UL,UR,LL,LR;
 
 	c.cornerVectors(&UL,&UR,&LL,&LR,WIDTH,HEIGHT);
-	s.set_params(c.position,UL,UR,LL,LR,WIDTH,HEIGHT,maxdepth);
+	s.set_params(c.position,UL,UR,LL,LR,c.direction,WIDTH,HEIGHT,maxdepth);
 	s.render(c,canvas);
 
 	return 0;

@@ -21,7 +21,7 @@
 using namespace std;
 
 Scene::Scene(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
-			 glm::vec3 LR_arg, int w,int h,int d) {
+			 glm::vec3 LR_arg, glm::vec3 dir, int w,int h,int d) {
 
 	eye_position = eye;
 	UL = UL_arg;
@@ -31,10 +31,11 @@ Scene::Scene(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
 	width = w;
 	height = h;
 	maxdepth = d;
+	direction = dir;
 }
 
 void Scene::set_params(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
-					   glm::vec3 LR_arg, int w,int h,int d) {
+					   glm::vec3 LR_arg, glm::vec3 dir, int w,int h,int d) {
 
 	eye_position = eye;
 	UL = UL_arg;
@@ -44,6 +45,7 @@ void Scene::set_params(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec
 	width = w;
 	height = h;
 	maxdepth = d;
+	direction = dir;
 }
 
 void Scene::render(Camera c, Film kodak) {
@@ -73,6 +75,9 @@ void Scene::render(Camera c, Film kodak) {
 			color[1] = 0;
 			color[2] = 0;
 
+			ray.position = pix_pos;
+			ray.direction = glm::vec3(0,0,-1);
+
 			trace(ray,&color);
 			kodak.commit(width-i, height-j, color);
 		}
@@ -91,6 +96,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 		Shape* best_shape;
 		BRDF brdf;
 		bool no_hit = true;
+
 		for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
 			Shape* s = *iter;
 			float current_T;
@@ -166,10 +172,17 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	glm::vec3 light_direction = lray.direction;
 
 	//make sure vectors are normal
-	normal = normal*(1/glm::sqrt(glm::dot(normal,normal)));
-	light_direction = light_direction*(1/glm::sqrt(glm::dot(light_direction,light_direction)));
+	float normal_mag = glm::sqrt(glm::dot(normal,normal));
+	float light_mag = glm::sqrt(glm::dot(light_direction,light_direction));
+	if (normal_mag>0){
+		normal /=normal_mag;
+	}
+	if (light_mag>0){
+		light_direction /= light_mag;
+	}
 
 	//Calculate the diffuse component
+
 	float diffuse = glm::dot(normal,light_direction);
 
 	glm::vec3 r_vec = -light_direction+2*diffuse*normal;
@@ -180,11 +193,12 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	diffuse = glm::max(diffuse,0.0f);
 	
 	//Calculate the specular component
-	glm::vec3 view = eye_position-local.point;
+	glm::vec3 view = -direction;
 	float view_norm = glm::dot(view,view);
 	if (view_norm > 0.0f) {
 		view = view*(1/glm::sqrt(glm::dot(view,view)));
 	}
+	view = glm::vec3(0,0,1);
 	float specular = glm::dot(r_vec,view);
 	specular = glm::max(specular,0.0f);
 	specular = glm::pow(specular,brdf.shiny);//need to change 20 to p coefficient. (variable called shiny)
