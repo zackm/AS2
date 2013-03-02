@@ -128,34 +128,27 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 		//generate reflection ray and repeat
 		//do this by resetting r.
-		generateReflectionRay(local,r);
+		generateReflectionRay(local,&r);
 		reflection_coef *= brdf.kr; //should be brdf.kr
 		i++;
 	}
-
-	// recursive way
-	// if (glm::dot(brdf.kr,brdf.kr) > 0) {
-	// 	Ray reflectRay = createReflectRay(local, r);
-	// 	glm::vec3 temp_color;
-	// 	trace(reflectRay, depth+1, &temp_color);
-	// 	*color += brdf.kr * temp_color;
-	// }
 }
 
-void Scene::generateReflectionRay(LocalGeo &local,Ray& ray){
+void Scene::generateReflectionRay(LocalGeo &local,Ray* ray){
 	glm::vec3 normal = local.normal;
-	glm::vec3 direction = ray.direction;
+	glm::vec3 direction = ray->direction;
 
 	//probably should check length
 	normal = normal/(glm::sqrt(glm::dot(normal,normal)));
 	direction = normal/(glm::sqrt(glm::dot(direction,direction)));
 
 	glm::vec3 reflection = -direction+2*glm::dot(direction,normal)*normal;
+	reflection = reflection/(glm::sqrt(glm::dot(reflection,reflection)));
 
-	ray.direction = reflection;
-	ray.position = local.point;
-	ray.t_min = .001; //probably should be something else
-	ray.t_max = 1000000; //probably should be large
+	ray->direction = reflection;
+	ray->position = local.point;
+	ray->t_min = .001; //probably should be something else
+	ray->t_max = 1000000; //probably should be large
 }
 
 bool Scene::intersect_checker(Ray& r){
@@ -214,7 +207,7 @@ Ray Scene::createReflectRay(LocalGeo local, Ray r) {
 
 	new_ray.position = local.point;
 	new_ray.direction = d - 2 * (glm::dot(d,n)) * n;
-	new_ray.t_min = 0;
+	new_ray.t_min = 0.0001;
 	new_ray.t_max = std::numeric_limits<float>::infinity();
 	return new_ray;
 }

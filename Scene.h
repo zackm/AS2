@@ -7,8 +7,6 @@
 #include "Camera.h"
 #endif
 
-//#include "Raytracer.h"
-
 #ifndef __FILM_H__
 #define __FILM_H__
 #include "Film.h"
@@ -16,6 +14,7 @@
 
 #pragma once
 #include <list>
+
 using namespace std;
 
 #pragma once
@@ -37,7 +36,7 @@ public:
 	void add_shape(Shape*);
 	void add_light(Light*);
 
-	void generateReflectionRay(LocalGeo&,Ray&);
+	void generateReflectionRay(LocalGeo&,Ray*);
 	void trace(Ray &, glm::vec3 *);
 	bool intersect_checker(Ray&);
 

@@ -28,4 +28,4 @@ directional .577f -.577f -.577f 1 1 1
 directional .577f .577f -.577f 0 0 1
 
 output test.png
-maxdepth 2
+maxdepth 4

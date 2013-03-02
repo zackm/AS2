@@ -352,7 +352,7 @@ int main(int argc, char *argv[]) {
 			}
 
 			//reflection r g b 
-			//  speciﬁes the reflecti color of the surface.
+			//  speciﬁes the reflective color of the surface.
 			else if(!splitline[0].compare("reflect")) {
 				float r = atof(splitline[1].c_str());
 				float g = atof(splitline[2].c_str());
