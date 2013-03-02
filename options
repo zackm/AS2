@@ -1,5 +1,5 @@
 size 500 500
-camera 0.0f 0.0f -10f 0.0f 0.0f -1.0f 0.0f 1.0f 0.0f 90
+camera 0.0f 0.0f -1f 0.0f 0.0f -1.0f 0.0f 1.0f 0.0f 40
 
 shininess 50
 ambient .1f .1f .1f
