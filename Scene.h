@@ -23,7 +23,6 @@ using namespace std;
 class Scene {
 public:
 	glm::vec3 eye_position;
-	glm::vec3 direction;
 	glm::vec3 UL, UR, LL, LR;
 	glm::vec3 ka, kd, ks, kr;
 	int width, height, maxdepth;
@@ -31,8 +30,8 @@ public:
 	list<Shape*> shapes;
 
 	Scene(){};
-	Scene(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int,int);
-	void set_params(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int,int);
+	Scene(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int,int);
+	void set_params(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,int,int,int);
 	void render(Camera, Film);
 	void add_shape(Shape*);
 	void add_light(Light*);

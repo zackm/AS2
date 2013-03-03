@@ -377,7 +377,7 @@ int main(int argc, char *argv[]) {
 	glm::vec3 UL,UR,LL,LR;
 
 	c.cornerVectors(&UL,&UR,&LL,&LR,WIDTH,HEIGHT);
-	s.set_params(c.position,UL,UR,LL,LR,c.direction,WIDTH,HEIGHT,maxdepth);
+	s.set_params(c.position,UL,UR,LL,LR,WIDTH,HEIGHT,maxdepth);
 	s.render(c,canvas);
 
 	return 0;

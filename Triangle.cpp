@@ -43,6 +43,8 @@ bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
 	gamma = sol[1];
 	*thit = sol[2];
 
+	//cout<<beta<<','<<gamma<<','<<*thit<<endl;
+
 	if (*thit<ray.t_min){
 		return false;
 	}
@@ -52,6 +54,7 @@ bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
 		normal /= glm::sqrt(glm::dot(normal,normal));
 		local->normal = normal;
 		local->point = ray.position+(*thit)*ray.direction;
+		//cout<<normal[0]<<','<<normal[1]<<','<<normal[2]<<endl;
 		return true;
 	}else{
 		return false;
@@ -95,8 +98,8 @@ bool Triangle::intersect(Ray& ray){
 }
 
 //int main (int argc, char* argv[]){
-//	glm::vec3 v1(0.0f,0.0f,1.0f);
-//	glm::vec3 v2(1.0f,1.0f,.5f);
+//	glm::vec3 v1(-1,0.0f,0);
+//	glm::vec3 v2(1.0f,0,0);
 //	glm::vec3 v3(0.0f,1.0f,0.0f);
 //
 //	glm::vec3 pos(0.0f,0.0f,5.0f);
@@ -104,11 +107,10 @@ bool Triangle::intersect(Ray& ray){
 //
 //	Ray testRay(pos,dir,0,10);
 //
-//	Triangle testTri(v1,v2,v3);
+//	Triangle testTri(v1,v2,v3,v1,v1,v1,v1,5);
 //	float thit = 0;
 //	LocalGeo localTest;
-//	testTri.intersect(testRay,&thit,&localTest);
-//	cout<<localTest.normal[2];
+//	cout<<testTri.intersect(testRay,&thit,&localTest);
 //
 //	cin.get();
 //	return 0;
