@@ -151,7 +151,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 void Scene::generateReflectionRay(LocalGeo &local,Ray* ray){
 	glm::vec3 normal = local.normal;
-	glm::vec3 direction = -ray->direction;
+	glm::vec3 direction = ray->direction;
 
 	//probably should check length
 	float norm_mag = glm::dot(normal,normal);
@@ -164,7 +164,7 @@ void Scene::generateReflectionRay(LocalGeo &local,Ray* ray){
 		direction /= glm::sqrt(direction_mag);
 	}
 
-	glm::vec3 reflection = (-direction)+2*glm::dot(direction,normal)*normal;
+	glm::vec3 reflection = (direction)-2*glm::dot(direction,normal)*normal;
 	float reflect_mag = glm::dot(reflection,reflection);
 	if (reflect_mag>0.0f){
 		reflection /= glm::sqrt(reflect_mag);
