@@ -131,8 +131,6 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 			(*l).generateLightRay(local,&lray,&lcolor);
 
-			//first do ambient, then call shading function
-
 			if (!intersect_checker(lray)) {
 				add_color = shading(local, brdf, lray, lcolor);
 				//cout<<'h'<<endl;
@@ -215,7 +213,7 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	diffuse = glm::max(diffuse,0.0f);
 
 	//Calculate the specular component
-	glm::vec3 view = eye_position-local.point;
+	glm::vec3 view(0,0,1);//view = eye_position-local.point;
 	float view_norm = glm::dot(view,view);
 	if (view_norm > 0.0f) {
 		view /= view_norm;
@@ -229,6 +227,7 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	//cout<<brdf.ks[0]<<','<<brdf.ks[1]<<','<<brdf.ks[2]<<endl;
 	//cout<<brdf.kr[0]<<','<<brdf.kr[1]<<','<<brdf.kr[2]<<endl;
 	//cout<<'\n';
+	//cin.get();
 
 	glm::vec3 out_color;
 	out_color[0] = (brdf.kd[0]*diffuse+brdf.ks[0]*specular)*lcolor[0];
