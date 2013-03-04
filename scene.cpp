@@ -213,10 +213,10 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	diffuse = glm::max(diffuse,0.0f);
 
 	//Calculate the specular component
-	glm::vec3 view(0,0,1);//view = eye_position-local.point;
+	glm::vec3 view = eye_position-local.point;
 	float view_norm = glm::dot(view,view);
 	if (view_norm > 0.0f) {
-		view /= view_norm;
+		view /= glm::sqrt(view_norm);
 	}
 	float specular = glm::dot(r_vec,view);
 	specular = glm::max(specular,0.0f);
