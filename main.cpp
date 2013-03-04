@@ -137,7 +137,9 @@ int main(int argc, char *argv[]) {
 	vector<glm::vec3> vertexnorm_v;
 	vector<glm::vec3> vertexnorm_n;
 	glm::vec3 ka(.2f, .2f, .2f);
-	glm::vec3 kd,ks,kr;
+	glm::vec3 kd(0,0,0);
+	glm::vec3 ks(0,0,0);
+	glm::vec3 kr(0,0,0);
 	float sp = 1;
 
 	// Arg Parser
