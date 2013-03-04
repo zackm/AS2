@@ -116,8 +116,8 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 		for (std::list<Light*>::iterator iter=lights.begin(); iter != lights.end(); ++iter) {
 			Light* l = *iter;
-			float thit;
-			LocalGeo test_geo;
+			// float thit; // not needed?
+			// LocalGeo test_geo;
 
 			(*l).generateLightRay(local,&lray,&lcolor);
 
