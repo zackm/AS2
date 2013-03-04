@@ -120,6 +120,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 		//Should be colored even when there are no lights in the scene at all
 		*color += brdf.ka;
+		//cout<<brdf.ka[0]<<','<<brdf.ka[1]<<','<<brdf.ka[2]<<endl;
 
 		//There is an intersection, loop through all light sources
 		Ray lray;
@@ -150,15 +151,25 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 void Scene::generateReflectionRay(LocalGeo &local,Ray* ray){
 	glm::vec3 normal = local.normal;
-	glm::vec3 direction = ray->direction;
+	glm::vec3 direction = -ray->direction;
 
 	//probably should check length
-	normal = normal/(glm::sqrt(glm::dot(normal,normal)));
-	direction = normal/(glm::sqrt(glm::dot(direction,direction)));
+	float norm_mag = glm::dot(normal,normal);
+	if (norm_mag>0.0f){
+		normal /= glm::sqrt(norm_mag);
+	}
+
+	float direction_mag = glm::dot(direction,direction);
+	if (direction_mag>0.0f){
+		direction /= glm::sqrt(direction_mag);
+	}
 
 	glm::vec3 reflection = (-direction)+2*glm::dot(direction,normal)*normal;
-	reflection = reflection/(glm::sqrt(glm::dot(reflection,reflection)));
-
+	float reflect_mag = glm::dot(reflection,reflection);
+	if (reflect_mag>0.0f){
+		reflection /= glm::sqrt(reflect_mag);
+	}
+	
 	ray->direction = reflection;
 	ray->position = local.point;
 	ray->t_min = .001; //probably should be something else
