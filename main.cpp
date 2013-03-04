@@ -137,7 +137,9 @@ int main(int argc, char *argv[]) {
 	vector<glm::vec3> vertexnorm_v;
 	vector<glm::vec3> vertexnorm_n;
 	glm::vec3 ka(.2f, .2f, .2f);
-	glm::vec3 kd,ks,kr;
+	glm::vec3 kd(0,0,0);
+	glm::vec3 ks(0,0,0);
+	glm::vec3 kr(0,0,0);
 	float sp = 1;
 
 	// Arg Parser
@@ -317,10 +319,8 @@ int main(int argc, char *argv[]) {
 				float up_y = atof(splitline[8].c_str());
 				float up_z = atof(splitline[9].c_str());
 				float fov = atof(splitline[10].c_str());
-				c.position = glm::vec3(from_x,from_y,from_z);
-				c.direction = glm::vec3(to_x,to_y,to_z);
-				c.up = glm::vec3(up_x,up_y,up_z);
-				c.fov = fov;
+				Camera cam(glm::vec3(from_x,from_y,from_z),glm::vec3(to_x,to_y,to_z),glm::vec3(up_x,up_y,up_z),fov);
+				c = cam;
 			}
 
 			//ambient r g b

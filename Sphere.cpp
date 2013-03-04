@@ -58,9 +58,16 @@ bool Sphere::intersect(Ray& ray, float* thit,LocalGeo* local){
 		*thit = glm::min(root1,root2);
 	}
 
-	local->point = ray.position+(*thit)*ray.direction;
-	glm::vec3 sphere_vec = local->point-center;
-	local->normal = sphere_vec/glm::sqrt(glm::dot(sphere_vec,sphere_vec));
+	*thit = glm::min(root1,root2);
+
+	glm::vec3 temp = ray.position+(*thit)*ray.direction;
+
+	glm::vec3 sphere_vec = temp-center;
+	glm::vec3 temp_nm = sphere_vec/glm::sqrt(glm::dot(sphere_vec,sphere_vec));
+
+	LocalGeo temp_local(temp,temp_nm);
+
+	*local = temp_local;
 	return true;
 }
 
@@ -91,21 +98,9 @@ bool Sphere::intersect(Ray& ray){
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 //int main (int argc, char* argv[]){
 //	glm::vec3 v(0,0,0);
-//	Sphere testSphere(v,1.0f);
+//	Sphere testSphere(v,1.0f,v,v,v,v,0);
 //
 //	glm::vec3 pos(0,0,1);
 //	glm::vec3 dir(0,0,1);

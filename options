@@ -1,5 +1,5 @@
 size 500 500
-camera 0.0f 0.0f -1f 0.0f 0.0f -1.0f 0.0f 1.0f 0.0f 40
+camera 0.0f 0.0f 0 0.0f 0.0f -3 0 1.0f 0.0f 36.86
 
 shininess 50
 ambient .1f .1f .1f
@@ -28,4 +28,4 @@ directional .577f -.577f -.577f 1 1 1
 directional .577f .577f -.577f 0 0 1
 
 output test.png
-maxdepth 4
+maxdepth 5
