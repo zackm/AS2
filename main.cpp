@@ -387,7 +387,7 @@ int main(int argc, char *argv[]) {
 				// 0 1 0 ty
 				// 0 0 1 tz
 				// 0 0 0 1
-				glm::mat4 new_mat; // need to construct
+				glm::mat4 new_mat(1,0,0,x,0,1,0,y,0,0,1,z,0,0,0,1);
 				// current_trans *= new_mat; // need to overload * operator in transformation
 			}
 
@@ -417,7 +417,7 @@ int main(int argc, char *argv[]) {
 				// 0  sy 0  0
 				// 0  0  sz 0
 				// 0  0  0  1
-				glm::mat4 new_mat; // need to construct
+				glm::mat4 new_mat(x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1);
 				// current_trans *= new_mat;
 			}
 

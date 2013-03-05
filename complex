@@ -1,0 +1,27 @@
+size 1000 1000
+camera 0 0 1 0 0 -1 0 1 0 40
+
+directional .577f -.577f -.577f 1 1 1
+directional -.577f .577f .577ff 1 1 1
+
+shininess 50
+ambient .1f .1f .1f
+
+diffuse 1 0 0
+specular 1 1 1
+reflect .9f .9f .9f
+sphere 0 0 -17 2
+
+diffuse 0 1 0
+sphere 0 4 -17 1.5f
+
+diffuse 0 0 1
+sphere 0 -4 -17 1.5f
+
+diffuse 1 1 0
+sphere 4 0 -17 1.5f
+
+diffuse 0 1 1
+sphere -4 0 -17 1.5f
+
+maxdepth 5
