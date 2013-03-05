@@ -7,5 +7,7 @@ public:
 	glm::mat4 minvt;
 
 	Transformation(){};
-	glm::mat4 operator*(Transformation);
+	Transformation(glm::mat4);
+	glm::mat4 left_mult(glm::mat4);
+	void update_invt();
 };

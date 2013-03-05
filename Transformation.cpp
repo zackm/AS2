@@ -4,6 +4,16 @@
 #pragma once
 #include "glm/glm.hpp"
 
-glm::mat4 Transformation::operator*(Transformation t2){
-	return t2.m * m;
+Transformation::Transformation(glm::mat4 m_arg) {
+	m = m_arg;
+	update_invt();
+}
+
+glm::mat4 Transformation::left_mult(glm::mat4 m_arg){
+	m = m_arg * m;
+	update_invt();
+}
+
+void Transformation::update_invt() {
+	// minvt = glm::transpose(glm::inverse(m));
 }

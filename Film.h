@@ -1,5 +1,5 @@
 /* Film header */
-#include "Dist/FreeImage.h"
+#include "FreeImage.h"
 #include "glm/glm.hpp"
 
 #pragma once

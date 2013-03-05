@@ -5,7 +5,7 @@
 #include "Film.h"
 #endif
 
-#include "Dist/FreeImage.h"
+#include "FreeImage.h"
 #include <iostream>
 #include "glm/glm.hpp"
 

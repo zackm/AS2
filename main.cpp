@@ -139,8 +139,8 @@ int main(int argc, char *argv[]) {
 	vector<glm::vec3> vertices;
 	vector<glm::vec3> vertexnorm_v;
 	vector<glm::vec3> vertexnorm_n;
-	vector<Transformation> t_stack;
-	Transformation current_trans;
+	vector<Transformation> t_stack; // might just be easier to keep mat4 stack
+	Transformation current_trans; 
 	glm::vec3 ka(.2f, .2f, .2f);
 	glm::vec3 kd(0,0,0);
 	glm::vec3 ks(0,0,0);
@@ -148,7 +148,9 @@ int main(int argc, char *argv[]) {
 	float sp = 1;
 
 	// Push identity matrix onto stack
-	Transformation id; // need to initialize
+	glm::mat4 id_mat(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1); // need to initialize
+	Transformation id(id_mat);
+	// camera may also need transformation matrix
 	t_stack.push_back(id); // top of the stack is the end of the list
 
 	// Arg Parser
@@ -388,7 +390,7 @@ int main(int argc, char *argv[]) {
 				// 0 0 1 tz
 				// 0 0 0 1
 				glm::mat4 new_mat(1,0,0,x,0,1,0,y,0,0,1,z,0,0,0,1);
-				// current_trans *= new_mat; // need to overload * operator in transformation
+				current_trans.left_mult(new_mat);
 			}
 
 			//rotate x y z angle
@@ -402,7 +404,7 @@ int main(int argc, char *argv[]) {
 				// Matrix of form
 				// Rodriguez Formula
 				glm::mat4 new_mat; // need to construct
-				// current_trans *= new_mat;
+				// current_trans.left_mult(new_mat);
 			}
 
 			//scale x y z
@@ -418,7 +420,7 @@ int main(int argc, char *argv[]) {
 				// 0  0  sz 0
 				// 0  0  0  1
 				glm::mat4 new_mat(x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1);
-				// current_trans *= new_mat;
+				current_trans.left_mult(new_mat);
 			}
 
 			//pushTransform
@@ -426,8 +428,8 @@ int main(int argc, char *argv[]) {
 			//  You might want to do pushTransform immediately after setting 
 			//   the camera to preserve the “identity” transformation.
 			else if(!splitline[0].compare("pushTransform")) {
-				t_stack.push_back(current_trans);
-				// reset current_trans?
+				Transformation t_copy(current_trans.m);
+				t_stack.push_back(t_copy);
 			}
 
 			//popTransform
@@ -439,7 +441,6 @@ int main(int argc, char *argv[]) {
 			else if(!splitline[0].compare("popTransform")) {
 				current_trans = t_stack.back();
 				t_stack.pop_back();
-				// should current_trans hold the transformation or need another var?
 			} else {
 				std::cerr << "Unknown command: " << splitline[0] << std::endl;
 			}

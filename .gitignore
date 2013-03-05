@@ -3,6 +3,8 @@ glm/
 Makefile
 as2
 .DS_Store
+testB/
+testJ/
 
 # Compiled Object files
 *.slo
@@ -17,3 +19,6 @@ as2
 *.lai
 *.la
 *.a
+
+# Pics
+*.png
