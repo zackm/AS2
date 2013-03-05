@@ -41,6 +41,6 @@ public:
 	bool intersect_checker(Ray&);
 
 
-	glm::vec3 shading(LocalGeo, BRDF, Ray, glm::vec3);
+	glm::vec3 shading(LocalGeo, BRDF, Ray, glm::vec3,glm::vec3);
 	Ray createReflectRay(LocalGeo, Ray);
 };

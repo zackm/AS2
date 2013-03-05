@@ -91,16 +91,18 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 	glm::vec3 reflection_coef(1.0f,1.0f,1.0f);
 	float reflect_norm = 1.0; //shouldn't matter as long as it is not 0.
 
-	while (i<maxdepth && reflect_norm>0.0f){
+	while (i<=maxdepth && reflect_norm>0.0f){
 		float thit = std::numeric_limits<float>::infinity();
 		LocalGeo local;
 		Shape* best_shape;
 		BRDF brdf;
 		bool no_hit = true;
+		glm::vec3 view_pos;
 
 		for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
 			Shape* s = *iter;
 
+			//only should update the necessary things. We don't need get_brdf each iteration when we have best_shape.
 			float current_T;
 			LocalGeo current_local;
 			bool hit = (*s).intersect(r, &current_T, &current_local);
@@ -109,6 +111,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 				local = current_local;
 				no_hit = false;
 				best_shape = s;
+				view_pos = r.position;
 				brdf = s->get_brdf();
 			}
 		}
@@ -119,8 +122,10 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 		}
 
 		//Should be colored even when there are no lights in the scene at all
-		*color += brdf.ka;
-		//cout<<brdf.ka[0]<<','<<brdf.ka[1]<<','<<brdf.ka[2]<<endl;
+		//only color for camera rays
+		if (i<1){
+			*color += brdf.ka;
+		}
 
 		//There is an intersection, loop through all light sources
 		Ray lray;
@@ -132,9 +137,15 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 			(*l).generateLightRay(local,&lray,&lcolor);
 
+
 			if (!intersect_checker(lray)) {
-				add_color = shading(local, brdf, lray, lcolor);
-				//cout<<'h'<<endl;
+				//if (i>=1){
+				//	//cout<<'h'<<endl;
+				//	glm::vec3 v(1,0,0);
+				//	add_color = v;
+				//}else{
+				add_color = shading(local, brdf, lray, lcolor, view_pos);
+				
 				*color += reflection_coef*add_color;
 			}
 		}
@@ -151,7 +162,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 void Scene::generateReflectionRay(LocalGeo &local,Ray* ray){
 	glm::vec3 normal = local.normal;
-	glm::vec3 direction = ray->direction;
+	glm::vec3 direction = -ray->direction;
 
 	//probably should check length
 	float norm_mag = glm::dot(normal,normal);
@@ -164,12 +175,12 @@ void Scene::generateReflectionRay(LocalGeo &local,Ray* ray){
 		direction /= glm::sqrt(direction_mag);
 	}
 
-	glm::vec3 reflection = (direction)-2*glm::dot(direction,normal)*normal;
+	glm::vec3 reflection = (-direction)+2*glm::dot(direction,normal)*normal;
 	float reflect_mag = glm::dot(reflection,reflection);
 	if (reflect_mag>0.0f){
 		reflection /= glm::sqrt(reflect_mag);
 	}
-	
+
 	ray->direction = reflection;
 	ray->position = local.point;
 	ray->t_min = .001; //probably should be something else
@@ -186,7 +197,7 @@ bool Scene::intersect_checker(Ray& r){
 	return false;
 }
 
-glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
+glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor,glm::vec3 view_pos){
 	glm::vec3 normal = local.normal;
 	glm::vec3 light_direction = lray.direction;
 
@@ -223,13 +234,17 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 
 	diffuse = glm::max(diffuse,0.0f);
 
+	//if (diffuse==0){
+	//	cout<<'h'<<endl;
+	//}
+
 	//Calculate the specular component
-	glm::vec3 view = eye_position-local.point;
-	float view_norm = glm::dot(view,view);
+	glm::vec3 view_vec = view_pos - local.point;
+	float view_norm = glm::dot(view_vec,view_vec);
 	if (view_norm > 0.0f) {
-		view /= glm::sqrt(view_norm);
+		 view_vec /= glm::sqrt(view_norm);
 	}
-	float specular = glm::dot(r_vec,view);
+	float specular = glm::dot(r_vec,view_vec);
 	specular = glm::max(specular,0.0f);
 	specular = glm::pow(specular,brdf.shiny);//need to change 20 to p coefficient. (variable called shiny)
 
@@ -239,6 +254,10 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor){
 	//cout<<brdf.kr[0]<<','<<brdf.kr[1]<<','<<brdf.kr[2]<<endl;
 	//cout<<'\n';
 	//cin.get();
+
+	//if (specular==0){
+	//	cout<<'h'<<endl;
+	//}
 
 	glm::vec3 out_color;
 	out_color[0] = (brdf.kd[0]*diffuse+brdf.ks[0]*specular)*lcolor[0];
