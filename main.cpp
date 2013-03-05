@@ -115,6 +115,9 @@ Zack Mayeda cs184-bg
 #pragma once
 #include "Triangle.h"
 
+#pragma once
+#include "Transformation.h"
+
 #include <typeinfo>
 
 using namespace std;
@@ -136,11 +139,17 @@ int main(int argc, char *argv[]) {
 	vector<glm::vec3> vertices;
 	vector<glm::vec3> vertexnorm_v;
 	vector<glm::vec3> vertexnorm_n;
+	vector<Transformation> t_stack;
+	Transformation current_trans;
 	glm::vec3 ka(.2f, .2f, .2f);
 	glm::vec3 kd(0,0,0);
 	glm::vec3 ks(0,0,0);
 	glm::vec3 kr(0,0,0);
 	float sp = 1;
+
+	// Push identity matrix onto stack
+	Transformation id; // need to initialize
+	t_stack.push_back(id); // top of the stack is the end of the list
 
 	// Arg Parser
 	std::ifstream inpfile(filename.c_str());
@@ -196,7 +205,7 @@ int main(int argc, char *argv[]) {
 				//   Store 4 numbers
 				//   Store current property values
 				//   Store current top of matrix stack
-				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,sp);
+				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,sp,current_trans);
 				s.add_shape(sph);
 			}
 
@@ -257,7 +266,7 @@ int main(int argc, char *argv[]) {
 				//   Store 3 integers to index into array
 				//   Store current property values
 				//   Store current top of matrix stack
-				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3],ka,kd,ks,kr,sp);
+				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3],ka,kd,ks,kr,sp,current_trans);
 				s.add_shape(t);
 			}
 
@@ -364,6 +373,73 @@ int main(int argc, char *argv[]) {
 			//  speciﬁes the shininess of the surface.
 			else if(!splitline[0].compare("shininess")) {
 				sp = atof(splitline[1].c_str());
+			} 
+
+			//translate x y z
+			//  A translation 3-vector
+			else if(!splitline[0].compare("translate")) {
+				float x = atof(splitline[1].c_str());
+				float y = atof(splitline[2].c_str());
+				float z = atof(splitline[3].c_str());
+				// Update top of matrix stack
+				// Matrix of form
+				// 1 0 0 tx
+				// 0 1 0 ty
+				// 0 0 1 tz
+				// 0 0 0 1
+				glm::mat4 new_mat(1,0,0,x,0,1,0,y,0,0,1,z,0,0,0,1);
+				// current_trans *= new_mat; // need to overload * operator in transformation
+			}
+
+			//rotate x y z angle
+			//  Rotate by angle (in degrees) about the given axis as in OpenGL.
+			else if(!splitline[0].compare("rotate")) {
+				float x = atof(splitline[1].c_str());
+				float y = atof(splitline[2].c_str());
+				float z = atof(splitline[3].c_str());
+				float angle = atof(splitline[4].c_str());
+				// Update top of matrix stack
+				// Matrix of form
+				// Rodriguez Formula
+				glm::mat4 new_mat; // need to construct
+				// current_trans *= new_mat;
+			}
+
+			//scale x y z
+			//  Scale by the corresponding amount in each axis (a non-uniform scaling).
+			else if(!splitline[0].compare("scale")) {
+				float x = atof(splitline[1].c_str());
+				float y = atof(splitline[2].c_str());
+				float z = atof(splitline[3].c_str());
+				// Update top of matrix stack
+				// Matrix of form
+				// sx 0  0  0
+				// 0  sy 0  0
+				// 0  0  sz 0
+				// 0  0  0  1
+				glm::mat4 new_mat(x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1);
+				// current_trans *= new_mat;
+			}
+
+			//pushTransform
+			//  Push the current modeling transform on the stack as in OpenGL. 
+			//  You might want to do pushTransform immediately after setting 
+			//   the camera to preserve the “identity” transformation.
+			else if(!splitline[0].compare("pushTransform")) {
+				t_stack.push_back(current_trans);
+				// reset current_trans?
+			}
+
+			//popTransform
+			//  Pop the current transform from the stack as in OpenGL. 
+			//  The sequence of popTransform and pushTransform can be used if 
+			//  desired before every primitive to reset the transformation 
+			//  (assuming the initial camera transformation is on the stack as 
+			//  discussed above).
+			else if(!splitline[0].compare("popTransform")) {
+				current_trans = t_stack.back();
+				t_stack.pop_back();
+				// should current_trans hold the transformation or need another var?
 			} else {
 				std::cerr << "Unknown command: " << splitline[0] << std::endl;
 			}

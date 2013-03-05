@@ -3,9 +3,12 @@
 #include "glm/gtc/matrix_inverse.hpp"
 #include <iostream>
 
+#pragma once
+#include "Transformation.h"
+
 using namespace std;
 
-Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 ka,glm::vec3 d,glm::vec3 s,glm::vec3 r,float sp){
+Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 ka,glm::vec3 d,glm::vec3 s,glm::vec3 r,float sp,Transformation tr){
 	a = arg_a;
 	b = arg_b;
 	c = arg_c;
@@ -14,6 +17,7 @@ Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 ka,
 	brdf.ks = s;
 	brdf.kr = r;
 	brdf.shiny = sp;
+	trans = tr;
 }
 
 BRDF Triangle::get_brdf() {

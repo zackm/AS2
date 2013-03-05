@@ -7,4 +7,5 @@ public:
 	glm::mat4 minvt;
 
 	Transformation(){};
+	glm::mat4 operator*(Transformation);
 };

@@ -6,6 +6,9 @@
 #include <iostream>
 #include "DirectionalLight.h"
 
+#pragma once
+#include "Transformation.h"
+
 using namespace std;
 
 
@@ -14,7 +17,7 @@ Sphere::Sphere(void){
 	center = glm::vec3(0,0,0);
 }
 
-Sphere::Sphere(glm::vec3 arg_center, float arg_radius,glm::vec3 a,glm::vec3 d,glm::vec3 s,glm::vec3 r,float sp){
+Sphere::Sphere(glm::vec3 arg_center, float arg_radius,glm::vec3 a,glm::vec3 d,glm::vec3 s,glm::vec3 r,float sp,Transformation tr){
 	center = arg_center;
 	radius = arg_radius;
 	brdf.ka = a;
@@ -22,6 +25,7 @@ Sphere::Sphere(glm::vec3 arg_center, float arg_radius,glm::vec3 a,glm::vec3 d,gl
 	brdf.ks = s;
 	brdf.kr = r;
 	brdf.shiny = sp;
+	trans = tr;
 }
 
 BRDF Sphere::get_brdf() {
