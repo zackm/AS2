@@ -4,7 +4,7 @@
 #include "Ray.h"
 
 #pragma once
-#include "localGeo.h"
+#include "LocalGeo.h"
 #include "Shape.h"
 
 #pragma once

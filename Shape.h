@@ -2,7 +2,7 @@
 #include "Ray.h"
 
 #pragma once
-#include "localGeo.h"
+#include "LocalGeo.h"
 
 #pragma once
 #include <iostream>
