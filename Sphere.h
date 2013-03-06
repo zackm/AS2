@@ -14,7 +14,6 @@ class Sphere: public Shape{
 public:
 	glm::vec3 center; //assume these are in world coordinates, not pixel coordinates.
 	float radius;
-	Transformation trans;
 
 	Sphere(void);
 	Sphere(glm::vec3,float,glm::vec3,glm::vec3,glm::vec3,glm::vec3,float,Transformation);

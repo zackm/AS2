@@ -8,7 +8,6 @@ class Triangle : public Shape{
 public:
 	//Three vertices denote the triangle
 	glm::vec3 a,b,c;
-	Transformation trans;
 
 	Triangle(glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,float,Transformation tr);
 	bool intersect(Ray&, float*, LocalGeo*);

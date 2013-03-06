@@ -10,10 +10,13 @@
 #pragma once
 #include "BRDF.h"
 
+#include "Transformation.h"
+
 using namespace std;
 
 class Shape {
 public:
+	Transformation trans;
 	Shape(void){};
 	~Shape(void){};
 	virtual bool intersect(Ray&, float*, LocalGeo*) =0;

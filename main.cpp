@@ -139,8 +139,8 @@ int main(int argc, char *argv[]) {
 	vector<glm::vec3> vertices;
 	vector<glm::vec3> vertexnorm_v;
 	vector<glm::vec3> vertexnorm_n;
-	vector<Transformation> t_stack; // might just be easier to keep mat4 stack
-	Transformation current_trans; 
+	vector<glm::mat4> mat_stack; // might just be easier to keep mat4 stack
+	glm::mat4 current_mat;
 	glm::vec3 ka(.2f, .2f, .2f);
 	glm::vec3 kd(0,0,0);
 	glm::vec3 ks(0,0,0);
@@ -149,9 +149,9 @@ int main(int argc, char *argv[]) {
 
 	// Push identity matrix onto stack
 	glm::mat4 id_mat(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1); // need to initialize
-	Transformation id(id_mat);
+	//Transformation id(id_mat);
 	// camera may also need transformation matrix
-	t_stack.push_back(id); // top of the stack is the end of the list
+	mat_stack.push_back(id_mat); // top of the stack is the end of the list
 
 	// Arg Parser
 	std::ifstream inpfile(filename.c_str());
@@ -207,7 +207,11 @@ int main(int argc, char *argv[]) {
 				//   Store 4 numbers
 				//   Store current property values
 				//   Store current top of matrix stack
-				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,sp,current_trans);
+
+				//make transformation matrix
+
+				Transformation sphere_trans(mat_stack);
+				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,sp,sphere_trans);
 				s.add_shape(sph);
 			}
 
@@ -268,7 +272,8 @@ int main(int argc, char *argv[]) {
 				//   Store 3 integers to index into array
 				//   Store current property values
 				//   Store current top of matrix stack
-				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3],ka,kd,ks,kr,sp,current_trans);
+				Transformation tri_trans(mat_stack);
+				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3],ka,kd,ks,kr,sp,tri_trans);
 				s.add_shape(t);
 			}
 
@@ -379,33 +384,33 @@ int main(int argc, char *argv[]) {
 
 			//translate x y z
 			//  A translation 3-vector
-			else if(!splitline[0].compare("translate")) {
-				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[2].c_str());
-				float z = atof(splitline[3].c_str());
-				// Update top of matrix stack
-				// Matrix of form
-				// 1 0 0 tx
-				// 0 1 0 ty
-				// 0 0 1 tz
-				// 0 0 0 1
-				glm::mat4 new_mat(1,0,0,x,0,1,0,y,0,0,1,z,0,0,0,1);
-				current_trans.left_mult(new_mat);
-			}
+			//else if(!splitline[0].compare("translate")) {
+			//	float x = atof(splitline[1].c_str());
+			//	float y = atof(splitline[2].c_str());
+			//	float z = atof(splitline[3].c_str());
+			//	// Update top of matrix stack
+			//	// Matrix of form
+			//	// 1 0 0 tx
+			//	// 0 1 0 ty
+			//	// 0 0 1 tz
+			//	// 0 0 0 1
+			//	glm::mat4 new_mat(1,0,0,x,0,1,0,y,0,0,1,z,0,0,0,1);
+			//	current_trans.left_mult(new_mat);
+			//}
 
 			//rotate x y z angle
 			//  Rotate by angle (in degrees) about the given axis as in OpenGL.
-			else if(!splitline[0].compare("rotate")) {
-				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[2].c_str());
-				float z = atof(splitline[3].c_str());
-				float angle = atof(splitline[4].c_str());
-				// Update top of matrix stack
-				// Matrix of form
-				// Rodriguez Formula
-				glm::mat4 new_mat; // need to construct
-				// current_trans.left_mult(new_mat);
-			}
+			//else if(!splitline[0].compare("rotate")) {
+			//	float x = atof(splitline[1].c_str());
+			//	float y = atof(splitline[2].c_str());
+			//	float z = atof(splitline[3].c_str());
+			//	float angle = atof(splitline[4].c_str());
+			//	// Update top of matrix stack
+			//	// Matrix of form
+			//	// Rodriguez Formula
+			//	glm::mat4 new_mat; // need to construct
+			//	// current_trans.left_mult(new_mat);
+			//}
 
 			//scale x y z
 			//  Scale by the corresponding amount in each axis (a non-uniform scaling).
@@ -419,8 +424,12 @@ int main(int argc, char *argv[]) {
 				// 0  sy 0  0
 				// 0  0  sz 0
 				// 0  0  0  1
-				glm::mat4 new_mat(x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1);
-				current_trans.left_mult(new_mat);
+				glm::mat4 scale_mat(x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1);
+				current_mat = mat_stack.back();
+				mat_stack.pop_back();
+				current_mat = current_mat * scale_mat;
+				mat_stack.push_back(current_mat);
+				//current_trans.right_mult(new_mat);
 			}
 
 			//pushTransform
@@ -428,8 +437,9 @@ int main(int argc, char *argv[]) {
 			//  You might want to do pushTransform immediately after setting 
 			//   the camera to preserve the “identity” transformation.
 			else if(!splitline[0].compare("pushTransform")) {
-				Transformation t_copy(current_trans.m);
-				t_stack.push_back(t_copy);
+				//Transformation t_copy(current_trans.m);
+				current_mat = glm::mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+				mat_stack.push_back(current_mat);
 			}
 
 			//popTransform
@@ -439,8 +449,8 @@ int main(int argc, char *argv[]) {
 			//  (assuming the initial camera transformation is on the stack as 
 			//  discussed above).
 			else if(!splitline[0].compare("popTransform")) {
-				current_trans = t_stack.back();
-				t_stack.pop_back();
+				mat_stack.pop_back();
+				current_mat = mat_stack.back();
 			} else {
 				std::cerr << "Unknown command: " << splitline[0] << std::endl;
 			}

@@ -121,6 +121,13 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 			break;
 		}
 
+		//cout<<(*best_shape).trans.m[0][0]<<endl;
+
+		(*color)[0] = 1;
+		(*color)[1] = 0;
+		(*color)[2] = 0;
+		return;
+
 		//Should be colored even when there are no lights in the scene at all
 		//only color for camera rays
 		if (i<1){
