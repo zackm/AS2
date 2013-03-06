@@ -17,5 +17,5 @@ Transformation::Transformation(vector<glm::mat4> mat_vec){
 	}
 	m = obj_to_world;
 	minv = glm::inverse(m);
-	minvt = glm::transpose(minvt);
+	minvt = glm::transpose(minv);
 }

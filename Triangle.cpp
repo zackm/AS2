@@ -24,7 +24,27 @@ BRDF Triangle::get_brdf() {
 	return brdf;
 }
 
-bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
+bool Triangle::intersect(Ray& ray_arg, float* thit, LocalGeo* local){
+	glm::vec4 pos;
+	pos[0] = ray_arg.position[0];
+	pos[1] = ray_arg.position[1];
+	pos[2] = ray_arg.position[2];
+	pos[3] = 1;
+
+	glm::vec4 dir;
+	dir[0] = ray_arg.direction[0];
+	dir[1] = ray_arg.direction[1];
+	dir[2] = ray_arg.direction[2];
+	dir[3] = 0;	
+
+	pos = trans.minv * pos;
+	dir = trans.minv * dir;
+
+	glm::vec3 pos2(pos[0],pos[1],pos[2]);
+	glm::vec3 dir2(dir[0],dir[1],dir[2]);
+
+	Ray ray(pos2,dir2,ray_arg.t_min,ray_arg.t_max);
+
 	glm::vec3 vec1 = b-a;
 	glm::vec3 vec2 = c-a;
 	glm::vec3 vec3 = -ray.direction;
@@ -55,9 +75,26 @@ bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
 
 	if (beta>=0 && gamma>=0 && (beta+gamma<=1)){ //<= is to ensure alpha is also >=0.
 		glm::vec3 normal = glm::cross(vec1,vec2);
+
+		glm::vec4 normal_world(normal[0],normal[1],normal[2],0);
+		normal_world = trans.minvt * normal_world;
+		normal[0] = normal_world[0];
+		normal[1] = normal_world[1];
+		normal[2] = normal_world[2];
+
 		normal /= glm::sqrt(glm::dot(normal,normal));
+
 		local->normal = normal;
-		local->point = ray.position+(*thit)*ray.direction;
+
+		glm::vec3 point_obj = ray.position+(*thit)*ray.direction;
+		glm::vec4 point_world(point_obj[0],point_obj[1],point_obj[2],1);
+		point_world = trans.m * point_world;
+		point_obj[0] = point_world[0];
+		point_obj[1] = point_world[1];
+		point_obj[2] = point_world[2];
+
+		local->point = point_obj;
+
 		//cout<<normal[0]<<','<<normal[1]<<','<<normal[2]<<endl;
 		return true;
 	}else{
@@ -65,7 +102,27 @@ bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
 	}
 }
 
-bool Triangle::intersect(Ray& ray){
+bool Triangle::intersect(Ray& ray_arg){
+	glm::vec4 pos;
+	pos[0] = ray_arg.position[0];
+	pos[1] = ray_arg.position[1];
+	pos[2] = ray_arg.position[2];
+	pos[3] = 1;
+
+	glm::vec4 dir;
+	dir[0] = ray_arg.direction[0];
+	dir[1] = ray_arg.direction[1];
+	dir[2] = ray_arg.direction[2];
+	dir[3] = 0;	
+
+	pos = trans.minv * pos;
+	dir = trans.minv * dir;
+
+	glm::vec3 pos2(pos[0],pos[1],pos[2]);
+	glm::vec3 dir2(dir[0],dir[1],dir[2]);
+
+	Ray ray(pos2,dir2,ray_arg.t_min,ray_arg.t_max);
+
 	float thit = 0;
 	glm::vec3 vec1 = b-a;
 	glm::vec3 vec2 = c-a;
