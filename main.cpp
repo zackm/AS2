@@ -122,6 +122,19 @@ Zack Mayeda cs184-bg
 
 using namespace std;
 
+const float pi = 3.14159265359;
+
+glm::mat4 create_rotate(float x, float y, float z, float angle) {
+	glm::mat4 rotate_mat;
+	angle = angle * pi / 180.0f;
+	glm::mat4 id(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+	glm::mat4 cos_mat(x*x,x*y,x*z,0,x*y,y*y,y*z,0,x*z,y*z,z*z,0,0,0,0,0);
+	glm::mat4 sin_mat(0,z,-y,0,-z,0,x,0,y,-x,0,0,0,0,0,0);
+	rotate_mat = glm::cos(angle) * id + (1 - glm::cos(angle)) * cos_mat + glm::sin(angle) * sin_mat;
+	rotate_mat[3][3] = 1;
+	return rotate_mat;
+}
+
 int main(int argc, char *argv[]) {
 	if (argc < 2) {
 		cout << "No filname given. Terminating" << endl;
@@ -139,7 +152,7 @@ int main(int argc, char *argv[]) {
 	vector<glm::vec3> vertices;
 	vector<glm::vec3> vertexnorm_v;
 	vector<glm::vec3> vertexnorm_n;
-	vector<glm::mat4> mat_stack; // might just be easier to keep mat4 stack
+	vector<glm::mat4> mat_stack;
 	glm::mat4 current_mat;
 	glm::vec3 ka(.2f, .2f, .2f);
 	glm::vec3 kd(0,0,0);
@@ -374,6 +387,7 @@ int main(int argc, char *argv[]) {
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
 				kr = glm::vec3(r,g,b);
+				// unsure of command line arg ??
 			}			
 
 			//shininess s
@@ -384,33 +398,37 @@ int main(int argc, char *argv[]) {
 
 			//translate x y z
 			//  A translation 3-vector
-			//else if(!splitline[0].compare("translate")) {
-			//	float x = atof(splitline[1].c_str());
-			//	float y = atof(splitline[2].c_str());
-			//	float z = atof(splitline[3].c_str());
-			//	// Update top of matrix stack
-			//	// Matrix of form
-			//	// 1 0 0 tx
-			//	// 0 1 0 ty
-			//	// 0 0 1 tz
-			//	// 0 0 0 1
-			//	glm::mat4 new_mat(1,0,0,x,0,1,0,y,0,0,1,z,0,0,0,1);
-			//	current_trans.left_mult(new_mat);
-			//}
+			else if(!splitline[0].compare("translate")) {
+				float x = atof(splitline[1].c_str());
+				float y = atof(splitline[2].c_str());
+				float z = atof(splitline[3].c_str());
+				// Update top of matrix stack
+				// Matrix of form
+				// 1 0 0 tx
+				// 0 1 0 ty
+				// 0 0 1 tz
+				// 0 0 0 1
+				glm::mat4 translate_mat(1,0,0,0,0,1,0,0,0,0,1,0,x,y,z,1);
+				current_mat = mat_stack.back();
+				mat_stack.pop_back();
+				current_mat = current_mat * translate_mat;
+				mat_stack.push_back(current_mat);
+			}
 
 			//rotate x y z angle
 			//  Rotate by angle (in degrees) about the given axis as in OpenGL.
-			//else if(!splitline[0].compare("rotate")) {
-			//	float x = atof(splitline[1].c_str());
-			//	float y = atof(splitline[2].c_str());
-			//	float z = atof(splitline[3].c_str());
-			//	float angle = atof(splitline[4].c_str());
-			//	// Update top of matrix stack
-			//	// Matrix of form
-			//	// Rodriguez Formula
-			//	glm::mat4 new_mat; // need to construct
-			//	// current_trans.left_mult(new_mat);
-			//}
+			else if(!splitline[0].compare("rotate")) {
+				float x = atof(splitline[1].c_str());
+				float y = atof(splitline[2].c_str());
+				float z = atof(splitline[3].c_str());
+				float angle = atof(splitline[4].c_str());
+				// Update top of matrix stack
+				glm::mat4 rotate_mat = create_rotate(x,y,z,angle);
+				current_mat = mat_stack.back();
+				mat_stack.pop_back();
+				current_mat = current_mat * rotate_mat;
+				mat_stack.push_back(current_mat);
+			}
 
 			//scale x y z
 			//  Scale by the corresponding amount in each axis (a non-uniform scaling).
@@ -429,7 +447,6 @@ int main(int argc, char *argv[]) {
 				mat_stack.pop_back();
 				current_mat = current_mat * scale_mat;
 				mat_stack.push_back(current_mat);
-				//current_trans.right_mult(new_mat);
 			}
 
 			//pushTransform
@@ -450,7 +467,6 @@ int main(int argc, char *argv[]) {
 			//  discussed above).
 			else if(!splitline[0].compare("popTransform")) {
 				mat_stack.pop_back();
-				current_mat = mat_stack.back();
 			} else {
 				std::cerr << "Unknown command: " << splitline[0] << std::endl;
 			}

@@ -33,14 +33,14 @@ bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
 
 	glm::vec3 matrix_point = ray.position-a; //these formulae from slides
 
-	glm::mat3 bary_matrix(vec1[0],vec2[0],vec3[0],vec1[1],vec2[1],vec3[1],vec1[2],vec2[2],vec3[2]);
+	glm::mat3 bary_matrix(vec1[0],vec1[1],vec1[2],vec2[0],vec2[1],vec2[2],vec3[0],vec3[1],vec3[2]);
 	
 	float determ = glm::determinant(bary_matrix);
 	if (determ==0){
 		return false;
 	}
 
-	glm::mat3 matrix_inv = bary_matrix._inverse();
+	glm::mat3 matrix_inv = glm::inverse(bary_matrix);
 
 	glm::vec3 sol = matrix_inv*matrix_point;
 	beta = sol[0];
@@ -75,14 +75,14 @@ bool Triangle::intersect(Ray& ray){
 
 	glm::vec3 matrix_point = ray.position-a; //these formulae from slides
 
-	glm::mat3 bary_matrix(vec1[0],vec2[0],vec3[0],vec1[1],vec2[1],vec3[1],vec1[2],vec2[2],vec3[2]);
+	glm::mat3 bary_matrix(vec1[0],vec1[1],vec1[2],vec2[0],vec2[1],vec2[2],vec3[0],vec3[1],vec3[2]);
 
 	float determ = glm::determinant(bary_matrix);
 	if (determ==0){
 		return false;
 	}
 
-	glm::mat3 matrix_inv = bary_matrix._inverse();
+	glm::mat3 matrix_inv = glm::inverse(bary_matrix);
 
 	glm::vec3 sol = matrix_inv*matrix_point;
 

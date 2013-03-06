@@ -32,7 +32,27 @@ BRDF Sphere::get_brdf() {
 	return brdf;
 }
 
-bool Sphere::intersect(Ray& ray, float* thit,LocalGeo* local){
+bool Sphere::intersect(Ray& ray_arg, float* thit,LocalGeo* local){
+	glm::vec4 pos;
+	pos[0] = ray_arg.position[0];
+	pos[1] = ray_arg.position[1];
+	pos[2] = ray_arg.position[2];
+	pos[3] = 1;
+
+	glm::vec4 dir;
+	dir[0] = ray_arg.direction[0];
+	dir[1] = ray_arg.direction[1];
+	dir[2] = ray_arg.direction[2];
+	dir[3] = 0;	
+
+	pos = trans.minv * pos; // ??
+	dir = trans.minv * dir; // ??
+
+	glm::vec3 pos2(pos[0],pos[1],pos[2]);
+	glm::vec3 dir2(dir[0],dir[1],dir[2]);
+
+	Ray ray(pos2,dir2,ray_arg.t_min,ray_arg.t_max);
+
 	float a = glm::dot(ray.direction, ray.direction);
 
 	glm::vec3 b_vec = ray.position-center;
