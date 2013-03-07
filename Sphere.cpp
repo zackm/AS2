@@ -109,10 +109,10 @@ bool Sphere::intersect(Ray& ray_arg){
 	float root1 = (-b+addit)/(2.0f*a);
 	float root2 = (-b-addit)/(2.0f*a);
 
-	if (root1<ray.t_min){
-		if (root2<ray.t_min){
-			return false; //negative solutions
-		}
+	if (root1<ray.t_min && root2<ray.t_min){
+		return false;
+	}else if(root1>ray.t_max && root2>ray.t_max){
+		return false;
 	}
 	return true;
 }

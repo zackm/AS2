@@ -133,7 +133,7 @@ bool Triangle::intersect(Ray& ray_arg){
 	gamma = sol[1];
 	thit = sol[2];
 
-	if (thit<ray.t_min){
+	if (thit<ray.t_min || thit>ray.t_max){
 		return false;
 	}
 

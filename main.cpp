@@ -162,6 +162,8 @@ int main(int argc, char *argv[]) {
 	glm::vec3 ke(0,0,0);
 	float sp = 1;
 
+	bool has_reflect_coeff = false;
+
 	// Push identity matrix onto stack
 	glm::mat4 id_mat(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1); // need to initialize
 	//Transformation id(id_mat);
@@ -387,7 +389,10 @@ int main(int argc, char *argv[]) {
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
 				ks = glm::vec3(r,g,b);
-				kr = ks; // this might need to change
+
+				if (!has_reflect_coeff){
+					kr = ks;
+				}
 			}
 
 			//reflection r g b 
@@ -397,6 +402,7 @@ int main(int argc, char *argv[]) {
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
 				kr = glm::vec3(r,g,b);
+				has_reflect_coeff = true;
 				// unsure of command line arg ??
 			}			
 
