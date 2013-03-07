@@ -11,6 +11,6 @@ BRDF::BRDF(glm::vec3 arg_ka,glm::vec3 arg_kd,glm::vec3 arg_ks,glm::vec3 arg_kr,g
 
 BRDF::BRDF(void){
 	glm::vec3 v(0,0,0);
-	ka = kd = ks = kr = v;
+	ka = kd = ks = kr = ke = v;
 	shiny = 50;
 }

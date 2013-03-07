@@ -4,6 +4,9 @@
 #include <iostream>
 
 #pragma once
+#include <limits>
+
+#pragma once
 #include "Transformation.h"
 
 using namespace std;
@@ -76,9 +79,14 @@ bool Triangle::intersect(Ray& ray_arg, float* thit, LocalGeo* local){
 
 	//cout<<beta<<','<<gamma<<','<<*thit<<endl;
 
-	if (*thit<ray.t_min){
+	if (*thit<ray.t_min || *thit>ray.t_max){
 		return false;
 	}
+
+	//if (*thit<ray.t_min){
+	//	return false;
+	//}
+
 	if (beta>=0 && gamma>=0 && (beta+gamma<=1)){ //<= is to ensure alpha is also >=0.
 		glm::vec3 normal;
 		if (trinormal){

@@ -9,6 +9,9 @@
 #pragma once
 #include "Transformation.h"
 
+#pragma once
+#include <limits>
+
 using namespace std;
 
 
@@ -56,20 +59,23 @@ bool Sphere::intersect(Ray& ray_arg, float* thit,LocalGeo* local){
 	float root1 = (-b+addit)/(2.0f*a);
 	float root2 = (-b-addit)/(2.0f*a);
 
+	//out of bounds checker
+	if (root1<ray.t_min && root2<ray.t_min){
+		return false;
+	}else if(root1>ray.t_max && root2>ray.t_max){
+		return false;
+	}else if((root1<ray.t_min && root2>ray.t_max) || (root1>ray.t_max && root2<ray.t_min)){
+		return false;
+	}
+
+	//picks the correct root
 	if (root1<ray.t_min){
-		if (root2<ray.t_min){
-			return false; //negative solutions
-		}else{
-			*thit = root2;
-		}
+		*thit = root2;
 	}else if(root2<ray.t_min){
 		*thit = root1;
 	}else{
 		*thit = glm::min(root1,root2);
 	}
-
-	*thit = glm::min(root1,root2);
-
 
 	//convert point and normal back to world coordinates
 	glm::vec3 temp_obj = ray.position+(*thit)*ray.direction;
@@ -112,6 +118,8 @@ bool Sphere::intersect(Ray& ray_arg){
 	if (root1<ray.t_min && root2<ray.t_min){
 		return false;
 	}else if(root1>ray.t_max && root2>ray.t_max){
+		return false;
+	}else if((root1<ray.t_min && root2>ray.t_max) || (root1>ray.t_max && root2<ray.t_min)){
 		return false;
 	}
 	return true;

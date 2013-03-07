@@ -140,6 +140,8 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 			(*l).generateLightRay(local,&lray,&lcolor);
 
+			//cout<<lray.direction[0]<<','<<lray.direction[1]<<','<<lray.direction[2]<<endl;
+
 
 			if (!intersect_checker(lray)) {
 				//if (i>=1){
@@ -187,7 +189,7 @@ void Scene::generateReflectionRay(LocalGeo &local,Ray* ray){
 	ray->direction = reflection;
 	ray->position = local.point;
 	ray->t_min = .001; //probably should be something else
-	ray->t_max = 1000000; //probably should be large
+	ray->t_max = std::numeric_limits<float>::infinity();
 }
 
 bool Scene::intersect_checker(Ray& r){
