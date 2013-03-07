@@ -5,75 +5,76 @@ Zack Mayeda cs184-bg
 */
 
 /*
-	Required Features
-	-----------------
-	- render arbitrarily oriented ellipsoids (spheres are sufficient
-	primitives as long as you properly apply scales and rotations)
-	- render polygons (read .obj file)
-	- simple Phong Shading (in color)
-	- compute shadows
-	- compute reflections
-	- apply linear transformations to objects
-	- use point and directional lights
-	- write output to standard image format
+Required Features
+-----------------
+- render arbitrarily oriented ellipsoids (spheres are sufficient
+primitives as long as you properly apply scales and rotations)
+- render polygons (read .obj file)
+- simple Phong Shading (in color)
+- compute shadows
+- compute reflections
+- apply linear transformations to objects
+- use point and directional lights
+- write output to standard image format
 
-	Input Format
-	-----------------
-	- # comments : ignore lines starting with #
-	- blank line : ignore blank lines
-	+ General Commands
-	- size width height : first command, controls image size
-	- maxdepth depth : max number of bounces for a ray (default 5)
-	- output filename : output file where image should be written.
-	  Can be required or have default filename.
-	+ Camera Command
-	- camera lookfromx lookfromy lookfromz lookatx lookaty lookatz upx upy upz fov : 
-	  Notes: fov stands for field of view in y direction. The field of view
-	  in the x direction will be determined by image size. The world aspect
-	  ratio (distinct from the widtha and height that determine aspect ratio) is
-	  always 1; a sphere at the center of a screen will look like a circle, not an
-	  ellipse, independent of image aspect ratio.
-	+ Geometry Commands
-	- sphere x y z radius : defines sphere with given position and radius
-	- maxverts number : defines a max number of vertices for later triangle
-	  specifications. It must be set before vertices defined. (Your program
-	  may not need this, it is a convenience to allocate arrays accordingly.)
-	- maxvertnorms number : defines a max number of vertices with normals for
-	  later specification. It must be set before vertices with normals are
-	  defined. (Same discussion as maxverts command.)
-	- vertex x y z : defines vertex at given location. The vertext is put
-	  into a pile, starting to be numbered at 0.
-	- vertexnormal x y z nx ny nz : Similar to above, but define a surface
-	  normal with each vertex. The vertext and vertexnormal set of vertices are
-	  completely independent (as are maxverts and maxvertnorms).
-	- tri v1 v2 v3 : create a triangle out of the vertices involved (which have
-	  previously been specified with the vertext commmand). The vertices are assumed
-	  to be specified in counter-clockwise order. Your code should internally compute
-	  a face normal for this triangle.
-	- trinormal v1 v2 v3 : Same as above but for vertices specified with normals. In
-	  this case, each vertext has an associated normal, and when doing shading, you should
-	  interpolate the normals for intermediate points on the triangle.
-	+ Transformation Commands
-	- translate x y z : a translation 3-vector
-	- rotate x y z angle : rotate by angle (in degrees) about the given axis as in
-	  OpenGL
-	- scale x y z : scale by the corresponding amount in each axis (a nonuniform scaling).
-	- pushTransform : push the current modeling transform on the stack as in OpenGL.
-	  You might want to do pushTransform immediately after setting the camera to preserve
-	  the "identity" transformation.
-	- popTransform : pop the current transform from the stack as in OpenGL. The sequence
-	  of popTransform and pushTransform can be used if desired before every primitive to
-	  reset the transformation (assuming the initial camera transformation is on the
-	  stack as discussed above).
-	+ Light Commands
-	- directional x y z r g b : direction to light source and color
-	- point x y z r g b : location of point source and color
-	- ambient r g b : the global ambient color to be added to each object (defaul .2, .2, .2)
-	+ Material Commands
-	- diffuse r g b : diffuse color of surface
-	- specular r g b : specular color of surface
-	- shininess s : shininess of surface
-	- emission r g b : emmisive color of surface
+Input Format
+-----------------
+- # comments : ignore lines starting with #
+- blank line : ignore blank lines
++ General Commands
+- size width height : first command, controls image size
+- maxdepth depth : max number of bounces for a ray (default 5)
+- output filename : output file where image should be written.
+Can be required or have default filename.
++ Camera Command
+- camera lookfromx lookfromy lookfromz lookatx lookaty lookatz upx upy upz fov : 
+Notes: fov stands for field of view in y direction. The field of view
+in the x direction will be determined by image size. The world aspect
+ratio (distinct from the widtha and height that determine aspect ratio) is
+always 1; a sphere at the center of a screen will look like a circle, not an
+ellipse, independent of image aspect ratio.
++ Geometry Commands
+- sphere x y z radius : defines sphere with given position and radius
+- maxverts number : defines a max number of vertices for later triangle
+specifications. It must be set before vertices defined. (Your program
+may not need this, it is a convenience to allocate arrays accordingly.)
+- maxvertnorms number : defines a max number of vertices with normals for
+later specification. It must be set before vertices with normals are
+defined. (Same discussion as maxverts command.)
+- vertex x y z : defines vertex at given location. The vertext is put
+into a pile, starting to be numbered at 0.
+- vertexnormal x y z nx ny nz : Similar to above, but define a surface
+normal with each vertex. The vertext and vertexnormal set of vertices are
+completely independent (as are maxverts and maxvertnorms).
+- tri v1 v2 v3 : create a triangle out of the vertices involved (which have
+previously been specified with the vertext commmand). The vertices are assumed
+to be specified in counter-clockwise order. Your code should internally compute
+a face normal for this triangle.
+- trinormal v1 v2 v3 : Same as above but for vertices specified with normals. In
+this case, each vertext has an associated normal, and when doing shading, you should
+interpolate the normals for intermediate points on the triangle.
++ Transformation Commands
+- translate x y z : a translation 3-vector
+- rotate x y z angle : rotate by angle (in degrees) about the given axis as in
+OpenGL
+- scale x y z : scale by the corresponding amount in each axis (a nonuniform scaling).
+- pushTransform : push the current modeling transform on the stack as in OpenGL.
+You might want to do pushTransform immediately after setting the camera to preserve
+the "identity" transformation.
+- popTransform : pop the current transform from the stack as in OpenGL. The sequence
+of popTransform and pushTransform can be used if desired before every primitive to
+reset the transformation (assuming the initial camera transformation is on the
+stack as discussed above).
++ Light Commands
+- directional x y z r g b : direction to light source and color
+- point x y z r g b : location of point source and color
+- ambient r g b : the global ambient color to be added to each object (defaul .2, .2, .2)
++ Material Commands
+- diffuse r g b : diffuse color of surface
+- specular r g b : specular color of surface
+- shininess s : shininess of surface
+- emission r g b : emmisive color of surface
+- normal interpolation is just normal*(alpha+beta+gamma) then renormalize;
 */
 
 #include "glm/glm.hpp"
@@ -158,6 +159,7 @@ int main(int argc, char *argv[]) {
 	glm::vec3 kd(0,0,0);
 	glm::vec3 ks(0,0,0);
 	glm::vec3 kr(0,0,0);
+	glm::vec3 ke(0,0,0);
 	float sp = 1;
 
 	// Push identity matrix onto stack
@@ -224,7 +226,7 @@ int main(int argc, char *argv[]) {
 				//make transformation matrix
 
 				Transformation sphere_trans(mat_stack);
-				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,sp,sphere_trans);
+				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,ke,sp,sphere_trans);
 				s.add_shape(sph);
 			}
 
@@ -285,8 +287,9 @@ int main(int argc, char *argv[]) {
 				//   Store 3 integers to index into array
 				//   Store current property values
 				//   Store current top of matrix stack
+
 				Transformation tri_trans(mat_stack);
-				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3],ka,kd,ks,kr,sp,tri_trans);
+				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3],ka,kd,ks,kr,ke,sp,tri_trans);
 				s.add_shape(t);
 			}
 
@@ -305,9 +308,10 @@ int main(int argc, char *argv[]) {
 				//   Store current property values
 				//   Store current top of matrix stack
 
-				// Triangle *t = new Triangle(vertexnorm_v[v1],vertexnorm_v[v2],vertexnorm_v[v3],
-				// 						   vertexnorm_n[v1],vertexnorm_n[v2],vertexnorm_n[v3]);
-				// s.add_shape(t);
+				Transformation tri_trans(mat_stack);
+				Triangle *t = new Triangle(vertexnorm_v[v1],vertexnorm_v[v2],vertexnorm_v[v3],ka,kd,ks,kr,ke,sp,tri_trans,
+					vertexnorm_n[v1],vertexnorm_n[v2],vertexnorm_n[v3]);
+				s.add_shape(t);
 			}
 
 			//directional x y z r g b
@@ -319,7 +323,9 @@ int main(int argc, char *argv[]) {
 				float r = atof(splitline[4].c_str());
 				float g = atof(splitline[5].c_str());
 				float b = atof(splitline[6].c_str());
-				DirectionalLight* dl = new DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b));
+
+				Transformation directional_trans(mat_stack);
+				DirectionalLight* dl = new DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b),directional_trans);
 				s.add_light(dl);
 			}
 
@@ -332,7 +338,9 @@ int main(int argc, char *argv[]) {
 				float r = atof(splitline[4].c_str());
 				float g = atof(splitline[5].c_str());
 				float b = atof(splitline[6].c_str());
-				PointLight* pt = new PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b));
+
+				Transformation point_trans(mat_stack);
+				PointLight* pt = new PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b),point_trans);
 				s.add_light(pt);
 			}
 
@@ -348,6 +356,7 @@ int main(int argc, char *argv[]) {
 				float up_y = atof(splitline[8].c_str());
 				float up_z = atof(splitline[9].c_str());
 				float fov = atof(splitline[10].c_str());
+
 				Camera cam(glm::vec3(from_x,from_y,from_z),glm::vec3(to_x,to_y,to_z),glm::vec3(up_x,up_y,up_z),fov);
 				c = cam;
 			}
@@ -378,6 +387,7 @@ int main(int argc, char *argv[]) {
 				float g = atof(splitline[2].c_str());
 				float b = atof(splitline[3].c_str());
 				ks = glm::vec3(r,g,b);
+				kr = ks; // this might need to change
 			}
 
 			//reflection r g b 
@@ -389,6 +399,13 @@ int main(int argc, char *argv[]) {
 				kr = glm::vec3(r,g,b);
 				// unsure of command line arg ??
 			}			
+
+			else if(!splitline[0].compare("emission")) {
+				float r = atof(splitline[1].c_str());
+				float g = atof(splitline[2].c_str());
+				float b = atof(splitline[3].c_str());
+				ke = glm::vec3(r,g,b);
+			}
 
 			//shininess s
 			//  speciﬁes the shininess of the surface.

@@ -98,7 +98,6 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 		BRDF brdf;
 		bool no_hit = true;
 		glm::vec3 view_pos;
-
 		for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
 			Shape* s = *iter;
 
@@ -129,6 +128,8 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 			*color += brdf.ka;
 		}
 
+		*color += brdf.ke;
+
 		//There is an intersection, loop through all light sources
 		Ray lray;
 		glm::vec3 lcolor(0.0f,0.0f,0.0f);
@@ -147,7 +148,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 				//	add_color = v;
 				//}else{
 				add_color = shading(local, brdf, lray, lcolor, view_pos);
-				
+
 				*color += reflection_coef*add_color;
 			}
 		}
@@ -244,7 +245,7 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor,g
 	glm::vec3 view_vec = view_pos - local.point;
 	float view_norm = glm::dot(view_vec,view_vec);
 	if (view_norm > 0.0f) {
-		 view_vec /= glm::sqrt(view_norm);
+		view_vec /= glm::sqrt(view_norm);
 	}
 	float specular = glm::dot(r_vec,view_vec);
 	specular = glm::max(specular,0.0f);

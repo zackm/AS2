@@ -16,7 +16,7 @@ public:
 	float radius;
 
 	Sphere(void);
-	Sphere(glm::vec3,float,glm::vec3,glm::vec3,glm::vec3,glm::vec3,float,Transformation);
+	Sphere(glm::vec3,float,glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,float,Transformation);
 	~Sphere(void){};
 	bool intersect(Ray& ray, float* thit, LocalGeo* local);
 	bool intersect(Ray& ray);

@@ -4,32 +4,33 @@
 
 #include <iostream>;
 
-#include "Sphere.h"
 using namespace std;
 
 void DirectionalLight::generateLightRay(LocalGeo& local,Ray* lray,glm::vec3* lcolor){
-	lray->position = local.point;
-	lray->direction = direction/(1/glm::sqrt(glm::dot(direction,direction)));
-	lray->t_min = t_min;
-	lray->t_max = t_max;
+	glm::vec3 pos = local.point;
+	glm::vec3 dir = direction;
 
-	(*lcolor)[0] = color[0];
-	(*lcolor)[1] = color[1];
-	(*lcolor)[2] = color[2];
+	float norm = glm::dot(dir,dir);
+	if (norm>0){
+		dir /= glm::sqrt(norm);
+	}
+
+	Ray temp_ray(pos,dir,t_min,t_max);
+
+	*lray = temp_ray;
+
+	glm::vec3 temp_color(color[0],color[1],color[2]);
+
+	*lcolor = temp_color;
 }
 
-DirectionalLight::DirectionalLight(glm::vec3 dir,glm::vec3 col,float t1,float t2){
-	direction = dir; 
-	color = col;
-	t_min = t1;
-	t_max = t2;
-}
+DirectionalLight::DirectionalLight(glm::vec3 dir,glm::vec3 col, Transformation tr){
+	trans = tr;
 
-DirectionalLight::DirectionalLight(glm::vec3 dir,glm::vec3 col){
-	direction = dir; 
+	direction = trans.world_vector(dir);
 	color = col;
 	t_min = .001; //might need to be 0
-	t_max = 100000;//needs to be inf
+	t_max = std::numeric_limits<float>::infinity();
 }
 
 //int main(char argc, char* argv[]){
