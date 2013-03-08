@@ -16,12 +16,12 @@ using namespace std;
 
 class Shape {
 public:
-	Transformation trans;
+	BRDF brdf;
+
 	Shape(void){};
 	~Shape(void){};
 	virtual bool intersect(Ray&, float*, LocalGeo*) =0;
 	virtual bool intersect(Ray&) =0;
-	BRDF brdf;
 	virtual BRDF get_brdf() =0;
 };
 

@@ -291,7 +291,11 @@ int main(int argc, char *argv[]) {
 				//   Store current top of matrix stack
 
 				Transformation tri_trans(mat_stack);
-				Triangle *t = new Triangle(vertices[v1],vertices[v2],vertices[v3],ka,kd,ks,kr,ke,sp,tri_trans);
+				glm::vec3 vert_1 = tri_trans.world_point(vertices[v1]);
+				glm::vec3 vert_2 = tri_trans.world_point(vertices[v2]);
+				glm::vec3 vert_3 = tri_trans.world_point(vertices[v3]);
+
+				Triangle *t = new Triangle(vert_1,vert_2,vert_3,ka,kd,ks,kr,ke,sp);
 				s.add_shape(t);
 			}
 
@@ -311,8 +315,16 @@ int main(int argc, char *argv[]) {
 				//   Store current top of matrix stack
 
 				Transformation tri_trans(mat_stack);
-				Triangle *t = new Triangle(vertexnorm_v[v1],vertexnorm_v[v2],vertexnorm_v[v3],ka,kd,ks,kr,ke,sp,tri_trans,
-					vertexnorm_n[v1],vertexnorm_n[v2],vertexnorm_n[v3]);
+				glm::vec3 vert_1 = tri_trans.world_point(vertexnorm_v[v1]);
+				glm::vec3 vert_2 = tri_trans.world_point(vertexnorm_v[v2]);
+				glm::vec3 vert_3 = tri_trans.world_point(vertexnorm_v[v3]);
+
+				glm::vec3 norm_1 = tri_trans.world_normal(vertexnorm_n[v1]);
+				glm::vec3 norm_2 = tri_trans.world_normal(vertexnorm_n[v2]);
+				glm::vec3 norm_3 = tri_trans.world_normal(vertexnorm_n[v3]);
+
+				Triangle *t = new Triangle(vert_1,vert_2,vert_3,ka,kd,ks,kr,ke,sp,
+										   norm_1,norm_2,norm_3);
 				s.add_shape(t);
 			}
 

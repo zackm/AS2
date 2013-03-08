@@ -12,7 +12,7 @@
 using namespace std;
 
 Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 ka,glm::vec3 d,glm::vec3 s,
-				   glm::vec3 r,glm::vec3 e,float sp,Transformation tr){
+				   glm::vec3 r,glm::vec3 e,float sp){
 					   a = arg_a;
 					   b = arg_b;
 					   c = arg_c;
@@ -22,13 +22,13 @@ Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 ka,
 					   brdf.kr = r;
 					   brdf.ke = e;
 					   brdf.shiny = sp;
-					   trans = tr;
 					   trinormal = false;
 }
 
 Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 ka,glm::vec3 d,glm::vec3 s,
-				   glm::vec3 r,glm::vec3 e,float sp,Transformation tr,glm::vec3 a_norm_arg, glm::vec3 b_norm_arg, glm::vec3 c_norm_arg){
+				   glm::vec3 r,glm::vec3 e,float sp,glm::vec3 a_norm_arg, glm::vec3 b_norm_arg, glm::vec3 c_norm_arg){
 					   //Triangle(arg_a,arg_b,arg_c,ka,d,s,r,e,sp,tr); //this doesn't work for some reason
+					  
 					   trinormal = true;
 					   a = arg_a;
 					   b = arg_b;
@@ -39,7 +39,6 @@ Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 ka,
 					   brdf.kr = r;
 					   brdf.ke = e;
 					   brdf.shiny = sp;
-					   trans = tr;
 					   a_norm = a_norm_arg;
 					   b_norm = b_norm_arg;
 					   c_norm = c_norm_arg;
@@ -49,12 +48,7 @@ BRDF Triangle::get_brdf() {
 	return brdf;
 }
 
-bool Triangle::intersect(Ray& ray_arg, float* thit, LocalGeo* local){
-	//transform ray to object space and make a new ray
-	glm::vec3 pos = trans.object_point(ray_arg.position);
-	glm::vec3 dir = trans.object_vector(ray_arg.direction);
-	Ray ray(pos,dir,ray_arg.t_min,ray_arg.t_max);
-
+bool Triangle::intersect(Ray& ray, float* thit, LocalGeo* local){
 	glm::vec3 vec1 = b-a;
 	glm::vec3 vec2 = c-a;
 	glm::vec3 vec3 = -ray.direction;
@@ -95,13 +89,14 @@ bool Triangle::intersect(Ray& ray_arg, float* thit, LocalGeo* local){
 			normal = glm::cross(vec1,vec2);
 		}
 
-		//change back into world coordinates
-		glm::vec3 normal_world = trans.world_normal(normal);
+		float mag = glm::dot(normal,normal);
+		if (mag>0){
+			normal /= glm::sqrt(mag);
+		}
 
-		glm::vec3 point_obj = ray.position+(*thit)*ray.direction;
-		glm::vec3 point_world = trans.world_point(point_obj);
+		glm::vec3 point = ray.position+(*thit)*ray.direction;
 
-		LocalGeo temp_local(point_world, normal_world);
+		LocalGeo temp_local(point, normal);
 
 		*local = temp_local;
 		//cout<<normal[0]<<','<<normal[1]<<','<<normal[2]<<endl;
@@ -111,12 +106,7 @@ bool Triangle::intersect(Ray& ray_arg, float* thit, LocalGeo* local){
 	}
 }
 
-bool Triangle::intersect(Ray& ray_arg){
-	//transform ray to object space and make a new ray
-	glm::vec3 pos = trans.object_point(ray_arg.position);
-	glm::vec3 dir = trans.object_vector(ray_arg.direction);
-	Ray ray(pos,dir,ray_arg.t_min,ray_arg.t_max);
-
+bool Triangle::intersect(Ray& ray){
 	float thit = 0;
 	glm::vec3 vec1 = b-a;
 	glm::vec3 vec2 = c-a;
