@@ -1,0 +1,10 @@
+command line: 
+	./as2 input-08
+
+Time to run: 
+	10 seconds
+
+Features:
+	- spheres
+	- phong shading
+	- shadows

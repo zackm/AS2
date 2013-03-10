@@ -1,0 +1,15 @@
+command line: 
+	./as2 input-01
+
+Time to run: 
+	40 seconds
+
+Features:
+	- triangles
+	- spheres
+	- Phong shading
+	- reflections
+	- shadows
+	- directional lights
+	- transformation (rotate by 90)
+	- writing out image to .png

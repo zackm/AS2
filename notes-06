@@ -1,0 +1,14 @@
+command line: 
+	./as2 input-06
+
+Time to run: 
+	46 seconds
+
+Features:
+	- triangles
+	- spheres
+	- Ambient, Diffuse, Specular with reflections (maxdepth 10)
+	- shadows
+	- directional lights
+	- transformation (rotate by 90)
+	- writing out image to .png
