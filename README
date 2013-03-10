@@ -1,0 +1,9 @@
+CS184 Assignment 2
+Spring 2013
+
+Zack Mayeda (cs184-bg)
+Tyler Brabham (cs184-ej)
+
+Our code runs on Unix (specifically, the hive instructional machines).
+
+Zack submitted the source code.
