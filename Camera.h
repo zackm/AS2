@@ -9,7 +9,7 @@
 
 class Camera {
 public:
-	glm::vec3 position, direction, up; //Assuming up is the up direction for the camera.
+	glm::vec3 position, direction, up;
 	float fov;
 
 	void generateRay(glm::vec3, Ray*, glm::vec3);

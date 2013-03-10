@@ -15,9 +15,6 @@
 
 #include "Shape.h"
 
-#pragma once
-#include <typeinfo>
-
 #include "DirectionalLight.h"
 
 using namespace std;
@@ -35,6 +32,9 @@ Scene::Scene(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
 				 maxdepth = d;
 }
 
+/*
+For setting paramters after creating Scene object.
+*/
 void Scene::set_params(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec3 LL_arg,
 					   glm::vec3 LR_arg, int w,int h,int d) {
 
@@ -48,11 +48,16 @@ void Scene::set_params(glm::vec3 eye,glm::vec3 UL_arg,glm::vec3 UR_arg, glm::vec
 						   maxdepth = d;
 }
 
+/*
+Function iterates through each pixel and calls trace
+to calculate the color of the pixel. We then commit 
+the color to the Film kodak and generate the .png image.
+*/
 void Scene::render(Camera c, Film kodak) {
 	float u,v;
 	Ray ray;
-	glm::vec3 color;
-	glm::vec3 pix_pos;
+	glm::vec3 color, pix_pos;
+
 	float chunk = width / 100; // for progress indicator
 	float counter = width / 100; // for progress indicator
 	for (int i = 0; i < width; i++) {
@@ -65,18 +70,13 @@ void Scene::render(Camera c, Film kodak) {
 
 		for (int j = 0; j < height; j++) {
 
+			//get u,v coordinates using the middle of the pixel
 			u = float(float(i+.5)/width);
 			v = float(float(j+.5)/height);
-
 			pix_pos = u*(v*LL+(1-v)*UL)+(1-u)*(v*LR+(1-v)*UR);
 
 			c.generateRay(pix_pos, &ray, eye_position);
 			color = glm::vec3(0,0,0);
-
-			//ray.direction = glm::vec3(0,0,-1);
-			//ray.position = pix_pos;
-
-			//cout<<ray.direction[2];
 
 			trace(ray,&color);
 			kodak.commit(width-i, height-j, color);
@@ -87,10 +87,14 @@ void Scene::render(Camera c, Film kodak) {
 	kodak.writeImage();
 }
 
+/*
+Trace ray through scene. We use a while loop instead of a
+purely recurisve call.
+*/
 void Scene::trace(Ray &r, glm::vec3 *color) {
 	int i = 0;
 	glm::vec3 reflection_coef(1.0f,1.0f,1.0f);
-	float reflect_norm = 1.0; //shouldn't matter as long as it is not 0.
+	float reflect_norm = 1.0;//to check if we need to break while loop early
 
 	while (i<=maxdepth && reflect_norm>0.0f){
 		float thit = std::numeric_limits<float>::infinity();
@@ -102,7 +106,6 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 		for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
 			Shape* s = *iter;
 
-			//only should update the necessary things. We don't need get_brdf each iteration when we have best_shape.
 			float current_T;
 			LocalGeo current_local;
 			bool hit = (*s).intersect(r, &current_T, &current_local);
@@ -117,21 +120,18 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 		}
 
 		if (no_hit) {
-			//should break loop I think
+			//should break loop
 			break;
 		}
 
-		//cout<<(*best_shape).trans.m[0][0]<<endl;
-
-		//Should be colored even when there are no lights in the scene at all
-		//only color for camera rays
 		if (i<1){
+			//added only for initial rays
 			*color += brdf.ka;
 		}
 
+		//added in all reflections
 		*color += brdf.ke;
 
-		//There is an intersection, loop through all light sources
 		Ray lray;
 		glm::vec3 lcolor(0.0f,0.0f,0.0f);
 		glm::vec3 add_color;
@@ -141,17 +141,8 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 
 			(*l).generateLightRay(local,&lray,&lcolor);
 
-			//cout<<lray.direction[0]<<','<<lray.direction[1]<<','<<lray.direction[2]<<endl;
-
-
 			if (!intersect_checker(lray)) {
-				//if (i>=1){
-				//	//cout<<'h'<<endl;
-				//	glm::vec3 v(1,0,0);
-				//	add_color = v;
-				//}else{
 				add_color = shading(local, brdf, lray, lcolor, view_pos);
-
 				*color += reflection_coef*add_color;
 			}
 		}
@@ -161,16 +152,18 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 		generateReflectionRay(local,&r);
 		reflection_coef *= brdf.kr;
 		reflect_norm = glm::dot(reflection_coef,reflection_coef);
-		//cout<<reflect_norm<<endl;
+
 		i++;
 	}
 }
 
+/*
+Updates ray arg so that we can reuse it inside of trace method.
+*/
 void Scene::generateReflectionRay(LocalGeo &local,Ray* ray){
 	glm::vec3 normal = local.normal;
 	glm::vec3 direction = -ray->direction;
 
-	//probably should check length
 	float norm_mag = glm::dot(normal,normal);
 	if (norm_mag>0.0f){
 		normal /= glm::sqrt(norm_mag);
@@ -189,10 +182,13 @@ void Scene::generateReflectionRay(LocalGeo &local,Ray* ray){
 
 	ray->direction = reflection;
 	ray->position = local.point;
-	ray->t_min = .001; //probably should be something else
+	ray->t_min = .001;
 	ray->t_max = std::numeric_limits<float>::infinity();
 }
 
+/*
+Iterates through all shapes and just does basic intersect or not routine
+*/
 bool Scene::intersect_checker(Ray& r){
 	for (std::list<Shape*>::iterator iter=shapes.begin(); iter != shapes.end(); ++iter) {
 		Shape* s =  *iter;
@@ -203,13 +199,13 @@ bool Scene::intersect_checker(Ray& r){
 	return false;
 }
 
+/*
+Using simple phong shading model.
+*/
 glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor,glm::vec3 view_pos){
 	glm::vec3 normal = local.normal;
 	glm::vec3 light_direction = lray.direction;
 
-	//cout<<light_direction[0]<<','<<light_direction[1]<<','<<light_direction[2]<<endl;
-
-	//make sure vectors are normal
 	float normal_mag = glm::sqrt(glm::dot(normal,normal));
 	float light_mag = glm::sqrt(glm::dot(light_direction,light_direction));
 
@@ -221,16 +217,7 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor,g
 	}
 
 	//Calculate the diffuse component
-
 	float diffuse = glm::dot(normal,light_direction);
-
-	//cout<<diffuse<<endl;
-
-	//cout<<diffuse<<endl;
-	//cout<<normal[0]<<','<<normal[1]<<','<<normal[2]<<endl;
-	//cout<<light_direction[0]<<','<<light_direction[1]<<','<<light_direction[2]<<endl;
-	//cout<<lcolor[0]<<','<<lcolor[1]<<','<<lcolor[2]<<endl;
-	//cin.get();
 
 	glm::vec3 r_vec = (-light_direction)+(2.0f*diffuse)*normal;
 	float r_norm = glm::dot(r_vec,r_vec);
@@ -240,10 +227,6 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor,g
 
 	diffuse = glm::max(diffuse,0.0f);
 
-	//if (diffuse==0){
-	//	cout<<'h'<<endl;
-	//}
-
 	//Calculate the specular component
 	glm::vec3 view_vec = view_pos - local.point;
 	float view_norm = glm::dot(view_vec,view_vec);
@@ -252,18 +235,7 @@ glm::vec3 Scene::shading(LocalGeo local, BRDF brdf, Ray lray, glm::vec3 lcolor,g
 	}
 	float specular = glm::dot(r_vec,view_vec);
 	specular = glm::max(specular,0.0f);
-	specular = glm::pow(specular,brdf.shiny);//need to change 20 to p coefficient. (variable called shiny)
-
-	//cout<<brdf.ka[0]<<','<<brdf.ka[1]<<','<<brdf.ka[2]<<endl;
-	//cout<<brdf.kd[0]<<','<<brdf.kd[1]<<','<<brdf.kd[2]<<endl;
-	//cout<<brdf.ks[0]<<','<<brdf.ks[1]<<','<<brdf.ks[2]<<endl;
-	//cout<<brdf.kr[0]<<','<<brdf.kr[1]<<','<<brdf.kr[2]<<endl;
-	//cout<<'\n';
-	//cin.get();
-
-	//if (specular==0){
-	//	cout<<'h'<<endl;
-	//}
+	specular = glm::pow(specular,brdf.shiny);
 
 	glm::vec3 out_color;
 	out_color[0] = (brdf.kd[0]*diffuse+brdf.ks[0]*specular)*lcolor[0];
@@ -279,46 +251,3 @@ void Scene::add_shape(Shape* s) {
 void Scene::add_light(Light* l) {
 	lights.push_front(l);
 }
-
-//int main(char argc, char* argv[]){
-//	//Generate a light
-//	DirectionalLight test1(glm::vec3(0,0,-2), glm::vec3(0,0,1));
-//
-//	//Generate a Ray
-//	glm::vec3 camera_pos(0,0,1.2f);
-//	glm::vec3 dir(0,0,-1);
-//	Ray init_ray(camera_pos,dir,0,100);
-//
-//	//Generate a sphere
-//	Sphere sphere_test(glm::vec3(0,0,0),1.0f);
-//
-//	//Test the init_ray with the sphere
-//	bool hit;
-//	LocalGeo geo_test;
-//	float t_hit;
-//	hit = sphere_test.intersect(init_ray,&t_hit,&geo_test);
-//	cout<<geo_test.point[2]<<endl;
-//	cout<<t_hit<<endl;
-//	cin.get();
-//
-//
-//	//Generate a light ray for this local geo
-//	Ray lray;
-//	glm::vec3 lcolor(0,0,0);
-//	test1.generateLightRay(geo_test,&lray,&lcolor);
-//	cout<<lray.position[0]<<','<<lray.position[1]<<','<<lray.position[2]<<endl;
-//	cout<<lray.direction[0]<<','<<lray.direction[1]<<','<<lray.direction[2]<<endl;
-//	cout<<lray.t_min<<','<<lray.t_max<<endl;
-//	cin.get();
-//
-//	//Test light ray intersection with the same sphere
-//	float t_hit2 = 0;
-//	LocalGeo geo_test2;
-//	bool hit2;
-//	hit2 = sphere_test.intersect(lray,&t_hit2,&geo_test2);
-//	cout<<hit2<<endl;
-//	cout<<t_hit2;
-//	cin.get();
-//
-//	return 0;
-//}

@@ -3,7 +3,6 @@
 #include "Ray.h"
 #include "LocalGeo.h"
 #include "glm/glm.hpp"
-#include <iostream>
 #include "DirectionalLight.h"
 
 #pragma once
@@ -124,34 +123,3 @@ bool Sphere::intersect(Ray& ray_arg){
 	}
 	return true;
 }
-
-
-//int main (int argc, char* argv[]){
-//	glm::vec3 v(0,0,0);
-//	Sphere testSphere(v,1.0f,v,v,v,v,0);
-//
-//	glm::vec3 pos(0,0,1);
-//	glm::vec3 dir(0,0,1);
-//
-//	DirectionalLight test(glm::vec3(0,0,-2),glm::vec3(1,1,1));
-//
-//	LocalGeo testGeo;
-//	float thit = 0;
-//	Ray initRay(glm::vec3(0,0,2),glm::vec3(0,0,-1),0,10);
-//	testSphere.intersect(initRay,&thit,&testGeo);
-//
-//	Ray testRay;
-//	glm::vec3 color(0,0,0);
-//
-//	test.generateLightRay(testGeo,&testRay,&color);
-//
-//	//cout<<testRay.t_min;
-//	//cout<<testGeo.point[1];
-//
-//	testRay.t_min = 1;
-//	bool hit = testSphere.intersect(testRay,&thit,&testGeo);
-//
-//	cout<<hit;
-//	cin.get();
-//	return 0;
-//}

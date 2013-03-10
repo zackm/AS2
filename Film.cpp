@@ -23,6 +23,7 @@ Film::Film(int width, int height, int BitsPerPixel, std::string fname) {
 void Film::commit(int x, int y, glm::vec3 color) {
 	RGBQUAD free_image_color;
 
+	//Cap color at max of 1.0f
 	if (color[0] > 1.0f) {
 		color[0] = 1.0f;
 	}

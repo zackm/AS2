@@ -4,8 +4,12 @@
 #pragma once
 #include "Ray.h"
 
+#pragma once
 #include "Transformation.h"
 
+/*
+Abstract class for extending to Directional and Point lights.
+*/
 class Light{
 public:
 	float t_min,t_max;

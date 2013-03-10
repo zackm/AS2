@@ -13,6 +13,7 @@ public:
 
 	Transformation(){};
 	Transformation(vector<glm::mat4>);
+
 	glm::vec3 object_point(glm::vec3);
 	glm::vec3 object_vector(glm::vec3);
 	glm::vec3 world_point(glm::vec3);

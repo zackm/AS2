@@ -5,9 +5,6 @@
 #include "LocalGeo.h"
 
 #pragma once
-#include <iostream>
-
-#pragma once
 #include "BRDF.h"
 
 #include "Transformation.h"

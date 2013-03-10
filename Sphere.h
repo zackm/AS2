@@ -12,9 +12,9 @@
 
 class Sphere: public Shape{
 public:
-	glm::vec3 center; //assume these are in world coordinates, not pixel coordinates.
+	glm::vec3 center; //in object coordinates
 	float radius;
-	Transformation trans;
+	Transformation trans; //the transformation applied from input file
 
 	Sphere(void);
 	Sphere(glm::vec3,float,glm::vec3,glm::vec3,glm::vec3,glm::vec3,glm::vec3,float,Transformation);

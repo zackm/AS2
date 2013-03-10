@@ -1,12 +1,10 @@
-/* Film header */
 #include "FreeImage.h"
 #include "glm/glm.hpp"
 
 #pragma once
 #include <string>
 
-class Film
-{
+class Film{
 public:
 	FIBITMAP * bitmap;
 	int BitsPerPixel;

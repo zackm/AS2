@@ -7,7 +7,7 @@ LocalGeo::LocalGeo(glm::vec3 pt,glm::vec3 nm){
 	float norm = glm::sqrt(glm::dot(nm,nm));
 
 	if (norm>0){
-		nm = nm/norm;
+		nm /= norm;
 	}
 	normal = nm;
 }

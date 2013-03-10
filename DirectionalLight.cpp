@@ -2,10 +2,6 @@
 
 #include <limits>
 
-#include <iostream>;
-
-using namespace std;
-
 void DirectionalLight::generateLightRay(LocalGeo& local,Ray* lray,glm::vec3* lcolor){
 	glm::vec3 pos = local.point;
 	glm::vec3 dir = direction;
@@ -29,6 +25,6 @@ DirectionalLight::DirectionalLight(glm::vec3 dir,glm::vec3 col, Transformation t
 
 	direction = trans.world_vector(dir);
 	color = col;
-	t_min = .001; //might need to be 0
+	t_min = .001;
 	t_max = std::numeric_limits<float>::infinity();
 }
