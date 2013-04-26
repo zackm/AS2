@@ -23,3 +23,9 @@ testJ/
 # Pics
 *.png
 *.bmp
+
+# Example Input Files
+input-*
+complex2
+test
+hw2/
