@@ -50,6 +50,8 @@ using namespace std;
 
 const float pi = 3.14159265359;
 
+bool OBJ_ON = false; // flag for OBJ input file parsing
+
 /*
 Simply creates the 4 by 4 rotation matrix where [x,y,z]
 is the axis of rotation and angle is the angle in degrees
@@ -66,14 +68,23 @@ glm::mat4 create_rotate(float x, float y, float z, float angle) {
 	return rotate_mat;
 }
 
-int main(int argc, char *argv[]) {
-	if (argc < 2) {
-		cout << "No filname given. Terminating" << endl;
-		exit(1);
+/*
+Helper method for obj file parsing. Finds the number of slashes in
+a face reference. This is due to multiple standards for .obj file format.
+*/
+int slash_count(string s) {
+	int count = 0;
+	int pos = 0;
+	while (s.find("/", pos) != std::string::npos) {
+		count++;
+		int curr_pos = s.find("/",pos);
+		pos = curr_pos + 1;
 	}
-	std::string filename = argv[1];
-	cout << "Filename " << filename << " found." << endl;
-	int WIDTH = 400;
+	return count;
+}
+
+int main(int argc, char *argv[]) {
+		int WIDTH = 400;
 	int HEIGHT = 400;
 
 	Scene s;
@@ -96,9 +107,43 @@ int main(int argc, char *argv[]) {
 
 	bool has_reflect_coeff = false;
 
+	// Initializers for AS2 File Format
 	// Push identity matrix onto stack
 	glm::mat4 id_mat(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
 	mat_stack.push_back(id_mat); // top of the stack is the end of the list
+
+	// Initializers for OBJ Format
+	vector<glm::vec3> vert_list;
+	vector<glm::vec3> norm_list;
+	bool OBJ_NORM = false;
+
+	// fill first position for proper numbering, since obj parsing starts at  instead of 0.
+	vert_list.push_back(glm::vec3(0,0,0));
+	norm_list.push_back(glm::vec3(0,0,0));
+	vector<Triangle*> filler_tri;
+
+	// Filename Business
+	if (argc < 2) {
+		cout << "No filname given. Terminating" << endl;
+		exit(1);
+	}
+	std::string filename = argv[1];
+	cout << "Filename " << filename << " found." << endl;
+	if (filename.find(".obj") != std::string::npos) {
+		cout<<"OBJ Input File Detected."<<endl;
+		OBJ_ON = true;
+		// Hard code a light for OBJ
+		float x = 0;
+		float y = 0;
+		float z = -3;
+		float r = .6;
+		float g = .6;
+		float b = .6;
+
+		Transformation directional_trans(mat_stack);
+		DirectionalLight* dl = new DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b),directional_trans);
+		s.add_light(dl);
+	}
 
 	// Arg Parser
 	std::ifstream inpfile(filename.c_str());
@@ -123,314 +168,463 @@ int main(int argc, char *argv[]) {
 			if(splitline[0][0] == '#') {
 				continue;
 			}
-			//Valid commands:
-			//size width height
-			//  must be first command of file, controls image size
-			else if(!splitline[0].compare("size")) {
-				WIDTH = atoi(splitline[1].c_str());
-				HEIGHT = atoi(splitline[2].c_str());
-			}
 
-			//maxdepth depth
-			//  max # of bounces for ray (default 5)
-			else if(!splitline[0].compare("maxdepth")) {
-				maxdepth = atoi(splitline[1].c_str());
-			}
-
-			//output filename
-			//  output file to write image to 
-			else if(!splitline[0].compare("output")) {
-				output_name = splitline[1];
-			}	
-
-			//sphere x y z radius
-			//  Deﬁnes a sphere with a given position and radius.
-			else if(!splitline[0].compare("sphere")) {
-				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[2].c_str());
-				float z = atof(splitline[3].c_str());
-				float r = atof(splitline[4].c_str());
-				// Create new sphere:
-				//   Store 4 numbers
-				//   Store current property values
-				//   Store current top of matrix stack
-
-				//make transformation matrix
-
-				Transformation sphere_trans(mat_stack);
-				Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,ke,sp,sphere_trans);
-				s.add_shape(sph);
-			}
-
-			//vertex x y z
-			//  Deﬁnes a vertex at the given location.
-			//  The vertex is put into a pile, starting to be numbered at 0.
-			else if(!splitline[0].compare("vertex")) {
-				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[2].c_str());
-				float z = atof(splitline[3].c_str());
-				// Create a new vertex with these 3 values, store in some array
-				glm::vec3 vert(x,y,z);
-				vertices.push_back(vert);
-			}
-
-			//vertexnormal x y z nx ny nz
-			//  Similar to the above, but deﬁne a surface normal with each vertex.
-			//  The vertex and vertexnormal set of vertices are completely independent
-			//  (as are maxverts and maxvertnorms).
-			else if(!splitline[0].compare("vertexnormal")) {
-				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[2].c_str());
-				float z = atof(splitline[3].c_str());
-				float nx = atof(splitline[4].c_str());
-				float ny = atof(splitline[5].c_str());
-				float nz = atof(splitline[6].c_str());
-				// Create a new vertex+normal with these 6 values, store in some array
-				glm::vec3 norm_v(x,y,z);
-				glm::vec3 norm_n(nx,ny,nz);
-				vertexnorm_v.push_back(norm_v);
-				vertexnorm_n.push_back(norm_n);
-			}
-
-			//tri v1 v2 v3
-			//  Create a triangle out of the vertices involved (which have previously been speciﬁed with
-			//  the vertex command). The vertices are assumed to be speciﬁed in counter-clockwise order. Your code
-			//  should internally compute a face normal for this triangle.
-			else if(!splitline[0].compare("tri")) {
-				int v1 = atoi(splitline[1].c_str());
-				int v2 = atoi(splitline[2].c_str());
-				int v3 = atoi(splitline[3].c_str());
-				// Create new triangle:
-				//   Store pointer to array of vertices
-				//   Store 3 integers to index into array
-				//   Store current property values
-				//   Store current top of matrix stack
-
-				Transformation tri_trans(mat_stack);
-				glm::vec3 vert_1 = tri_trans.world_point(vertices[v1]);
-				glm::vec3 vert_2 = tri_trans.world_point(vertices[v2]);
-				glm::vec3 vert_3 = tri_trans.world_point(vertices[v3]);
-
-				Triangle *t = new Triangle(vert_1,vert_2,vert_3,ka,kd,ks,kr,ke,sp);
-				s.add_shape(t);
-			}
-
-			//trinormal v1 v2 v3
-			//  Same as above but for vertices speciﬁed with normals.
-			//  In this case, each vertex has an associated normal, 
-			//  and when doing shading, you should interpolate the normals 
-			//  for intermediate points on the triangle.
-			else if(!splitline[0].compare("trinormal")) {
-				int v1 = atoi(splitline[1].c_str());
-				int v2 = atoi(splitline[2].c_str());
-				int v3 = atoi(splitline[3].c_str());
-				// Create new triangle:
-				//   Store pointer to array of vertices (Different array than above)
-				//   Store 3 integers to index into array
-				//   Store current property values
-				//   Store current top of matrix stack
-
-				Transformation tri_trans(mat_stack);
-				glm::vec3 vert_1 = tri_trans.world_point(vertexnorm_v[v1]);
-				glm::vec3 vert_2 = tri_trans.world_point(vertexnorm_v[v2]);
-				glm::vec3 vert_3 = tri_trans.world_point(vertexnorm_v[v3]);
-
-				glm::vec3 norm_1 = tri_trans.world_normal(vertexnorm_n[v1]);
-				glm::vec3 norm_2 = tri_trans.world_normal(vertexnorm_n[v2]);
-				glm::vec3 norm_3 = tri_trans.world_normal(vertexnorm_n[v3]);
-
-				Triangle *t = new Triangle(vert_1,vert_2,vert_3,ka,kd,ks,kr,ke,sp,
-										   norm_1,norm_2,norm_3);
-				s.add_shape(t);
-			}
-
-			//directional x y z r g b
-			//  The direction to the light source, and the color, as in OpenGL.
-			else if(!splitline[0].compare("directional")) {
-				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[2].c_str());
-				float z = atof(splitline[3].c_str());
-				float r = atof(splitline[4].c_str());
-				float g = atof(splitline[5].c_str());
-				float b = atof(splitline[6].c_str());
-
-				Transformation directional_trans(mat_stack);
-				DirectionalLight* dl = new DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b),directional_trans);
-				s.add_light(dl);
-			}
-
-			//point x y z r g 
-			//  The location of a point source and the color, as in OpenGL.
-			else if(!splitline[0].compare("point")) {
-				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[2].c_str());
-				float z = atof(splitline[3].c_str());
-				float r = atof(splitline[4].c_str());
-				float g = atof(splitline[5].c_str());
-				float b = atof(splitline[6].c_str());
-
-				Transformation point_trans(mat_stack);
-				PointLight* pt = new PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b),point_trans);
-				s.add_light(pt);
-			}
-
-			// camera lookfromx lookfromy lookfromz lookatx lookaty lookatz upx upy upz fov
-			else if(!splitline[0].compare("camera")){
-				float from_x = atof(splitline[1].c_str());
-				float from_y = atof(splitline[2].c_str());
-				float from_z = atof(splitline[3].c_str());
-				float to_x = atof(splitline[4].c_str());
-				float to_y = atof(splitline[5].c_str());
-				float to_z = atof(splitline[6].c_str());
-				float up_x = atof(splitline[7].c_str());
-				float up_y = atof(splitline[8].c_str());
-				float up_z = atof(splitline[9].c_str());
-				float fov = atof(splitline[10].c_str());
-
-				Camera cam(glm::vec3(from_x,from_y,from_z),glm::vec3(to_x,to_y,to_z),glm::vec3(up_x,up_y,up_z),fov);
-				c = cam;
-			}
-
-			//ambient r g b
-			//  The global ambient color to be added for each object 
-			//  (default is .2,.2,.2)
-			else if(!splitline[0].compare("ambient")) {
-				float r = atof(splitline[1].c_str());
-				float g = atof(splitline[2].c_str());
-				float b = atof(splitline[3].c_str());
-				ka = glm::vec3(r,g,b);
-			}
-
-			//diﬀuse r g b
-			//  speciﬁes the diﬀuse color of the surface.
-			else if(!splitline[0].compare("diffuse")) {
-				float r = atof(splitline[1].c_str());
-				float g = atof(splitline[2].c_str());
-				float b = atof(splitline[3].c_str());
-				kd = glm::vec3(r,g,b);
-			}
-
-			//specular r g b 
-			//  speciﬁes the specular color of the surface.
-			else if(!splitline[0].compare("specular")) {
-				float r = atof(splitline[1].c_str());
-				float g = atof(splitline[2].c_str());
-				float b = atof(splitline[3].c_str());
-				ks = glm::vec3(r,g,b);
-
-				if (!has_reflect_coeff){
-					kr = ks;
+			// Non-OBJ input files (AS2 format)
+			if (!OBJ_ON) {
+				//Valid commands:
+				//size width height
+				//  must be first command of file, controls image size
+				if(!splitline[0].compare("size")) {
+					WIDTH = atoi(splitline[1].c_str());
+					HEIGHT = atoi(splitline[2].c_str());
 				}
-			}
 
-			//reflection r g b 
-			//  speciﬁes the reflective color of the surface.
-			else if(!splitline[0].compare("reflect")) {
-				float r = atof(splitline[1].c_str());
-				float g = atof(splitline[2].c_str());
-				float b = atof(splitline[3].c_str());
-				kr = glm::vec3(r,g,b);
-				has_reflect_coeff = true;
-				// unsure of command line arg ??
-			}			
+				//maxdepth depth
+				//  max # of bounces for ray (default 5)
+				else if(!splitline[0].compare("maxdepth")) {
+					maxdepth = atoi(splitline[1].c_str());
+				}
 
-			else if(!splitline[0].compare("emission")) {
-				float r = atof(splitline[1].c_str());
-				float g = atof(splitline[2].c_str());
-				float b = atof(splitline[3].c_str());
-				ke = glm::vec3(r,g,b);
-			}
+				//output filename
+				//  output file to write image to 
+				else if(!splitline[0].compare("output")) {
+					output_name = splitline[1];
+				}	
 
-			//shininess s
-			//  speciﬁes the shininess of the surface.
-			else if(!splitline[0].compare("shininess")) {
-				sp = atof(splitline[1].c_str());
-			} 
+				//sphere x y z radius
+				//  Deﬁnes a sphere with a given position and radius.
+				else if(!splitline[0].compare("sphere")) {
+					float x = atof(splitline[1].c_str());
+					float y = atof(splitline[2].c_str());
+					float z = atof(splitline[3].c_str());
+					float r = atof(splitline[4].c_str());
+					// Create new sphere:
+					//   Store 4 numbers
+					//   Store current property values
+					//   Store current top of matrix stack
 
-			//translate x y z
-			//  A translation 3-vector
-			else if(!splitline[0].compare("translate")) {
-				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[2].c_str());
-				float z = atof(splitline[3].c_str());
-				// Update top of matrix stack
-				// Matrix of form
-				// 1 0 0 tx
-				// 0 1 0 ty
-				// 0 0 1 tz
-				// 0 0 0 1
+					//make transformation matrix
 
-				glm::mat4 translate_mat(1,0,0,0,0,1,0,0,0,0,1,0,x,y,z,1);
-				current_mat = mat_stack.back();
+					Transformation sphere_trans(mat_stack);
+					Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,ke,sp,sphere_trans);
+					s.add_shape(sph);
+				}
 
-				mat_stack.pop_back();
-				current_mat = current_mat * translate_mat;
+				//vertex x y z
+				//  Deﬁnes a vertex at the given location.
+				//  The vertex is put into a pile, starting to be numbered at 0.
+				else if(!splitline[0].compare("vertex")) {
+					float x = atof(splitline[1].c_str());
+					float y = atof(splitline[2].c_str());
+					float z = atof(splitline[3].c_str());
+					// Create a new vertex with these 3 values, store in some array
+					glm::vec3 vert(x,y,z);
+					vertices.push_back(vert);
+				}
 
-				mat_stack.push_back(current_mat);
-			}
+				//vertexnormal x y z nx ny nz
+				//  Similar to the above, but deﬁne a surface normal with each vertex.
+				//  The vertex and vertexnormal set of vertices are completely independent
+				//  (as are maxverts and maxvertnorms).
+				else if(!splitline[0].compare("vertexnormal")) {
+					float x = atof(splitline[1].c_str());
+					float y = atof(splitline[2].c_str());
+					float z = atof(splitline[3].c_str());
+					float nx = atof(splitline[4].c_str());
+					float ny = atof(splitline[5].c_str());
+					float nz = atof(splitline[6].c_str());
+					// Create a new vertex+normal with these 6 values, store in some array
+					glm::vec3 norm_v(x,y,z);
+					glm::vec3 norm_n(nx,ny,nz);
+					vertexnorm_v.push_back(norm_v);
+					vertexnorm_n.push_back(norm_n);
+				}
 
-			//rotate x y z angle
-			//  Rotate by angle (in degrees) about the given axis as in OpenGL.
-			else if(!splitline[0].compare("rotate")) {
-				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[2].c_str());
-				float z = atof(splitline[3].c_str());
-				float angle = atof(splitline[4].c_str());
-				// Update top of matrix stack
+				//tri v1 v2 v3
+				//  Create a triangle out of the vertices involved (which have previously been speciﬁed with
+				//  the vertex command). The vertices are assumed to be speciﬁed in counter-clockwise order. Your code
+				//  should internally compute a face normal for this triangle.
+				else if(!splitline[0].compare("tri")) {
+					int v1 = atoi(splitline[1].c_str());
+					int v2 = atoi(splitline[2].c_str());
+					int v3 = atoi(splitline[3].c_str());
+					// Create new triangle:
+					//   Store pointer to array of vertices
+					//   Store 3 integers to index into array
+					//   Store current property values
+					//   Store current top of matrix stack
 
-				glm::mat4 rotate_mat = create_rotate(x,y,z,angle);
-				current_mat = mat_stack.back();
+					Transformation tri_trans(mat_stack);
+					glm::vec3 vert_1 = tri_trans.world_point(vertices[v1]);
+					glm::vec3 vert_2 = tri_trans.world_point(vertices[v2]);
+					glm::vec3 vert_3 = tri_trans.world_point(vertices[v3]);
 
-				mat_stack.pop_back();
-				current_mat = current_mat * rotate_mat;
+					Triangle *t = new Triangle(vert_1,vert_2,vert_3,ka,kd,ks,kr,ke,sp);
+					s.add_shape(t);
+				}
 
-				mat_stack.push_back(current_mat);
-			}
+				//trinormal v1 v2 v3
+				//  Same as above but for vertices speciﬁed with normals.
+				//  In this case, each vertex has an associated normal, 
+				//  and when doing shading, you should interpolate the normals 
+				//  for intermediate points on the triangle.
+				else if(!splitline[0].compare("trinormal")) {
+					int v1 = atoi(splitline[1].c_str());
+					int v2 = atoi(splitline[2].c_str());
+					int v3 = atoi(splitline[3].c_str());
+					// Create new triangle:
+					//   Store pointer to array of vertices (Different array than above)
+					//   Store 3 integers to index into array
+					//   Store current property values
+					//   Store current top of matrix stack
 
-			//scale x y z
-			//  Scale by the corresponding amount in each axis (a non-uniform scaling).
-			else if(!splitline[0].compare("scale")) {
-				float x = atof(splitline[1].c_str());
-				float y = atof(splitline[2].c_str());
-				float z = atof(splitline[3].c_str());
-				// Update top of matrix stack
-				// Matrix of form
-				// sx 0  0  0
-				// 0  sy 0  0
-				// 0  0  sz 0
-				// 0  0  0  1
-				glm::mat4 scale_mat(x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1);
-				current_mat = mat_stack.back();
+					Transformation tri_trans(mat_stack);
+					glm::vec3 vert_1 = tri_trans.world_point(vertexnorm_v[v1]);
+					glm::vec3 vert_2 = tri_trans.world_point(vertexnorm_v[v2]);
+					glm::vec3 vert_3 = tri_trans.world_point(vertexnorm_v[v3]);
 
-				mat_stack.pop_back();
-				current_mat = current_mat * scale_mat;
+					glm::vec3 norm_1 = tri_trans.world_normal(vertexnorm_n[v1]);
+					glm::vec3 norm_2 = tri_trans.world_normal(vertexnorm_n[v2]);
+					glm::vec3 norm_3 = tri_trans.world_normal(vertexnorm_n[v3]);
 
-				mat_stack.push_back(current_mat);
-			}
+					Triangle *t = new Triangle(vert_1,vert_2,vert_3,ka,kd,ks,kr,ke,sp,
+						norm_1,norm_2,norm_3);
+					s.add_shape(t);
+				}
 
-			//pushTransform
-			//  Push the current modeling transform on the stack as in OpenGL. 
-			//  You might want to do pushTransform immediately after setting 
-			//   the camera to preserve the “identity” transformation.
-			else if(!splitline[0].compare("pushTransform")) {
-				//Transformation t_copy(current_trans.m);
+				//directional x y z r g b
+				//  The direction to the light source, and the color, as in OpenGL.
+				else if(!splitline[0].compare("directional")) {
+					float x = atof(splitline[1].c_str());
+					float y = atof(splitline[2].c_str());
+					float z = atof(splitline[3].c_str());
+					float r = atof(splitline[4].c_str());
+					float g = atof(splitline[5].c_str());
+					float b = atof(splitline[6].c_str());
 
-				current_mat = glm::mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
-				mat_stack.push_back(current_mat);
-			}
+					Transformation directional_trans(mat_stack);
+					DirectionalLight* dl = new DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b),directional_trans);
+					s.add_light(dl);
+				}
 
-			//popTransform
-			//  Pop the current transform from the stack as in OpenGL. 
-			//  The sequence of popTransform and pushTransform can be used if 
-			//  desired before every primitive to reset the transformation 
-			//  (assuming the initial camera transformation is on the stack as 
-			//  discussed above).
-			else if(!splitline[0].compare("popTransform")) {
-				mat_stack.pop_back();
+				//point x y z r g 
+				//  The location of a point source and the color, as in OpenGL.
+				else if(!splitline[0].compare("point")) {
+					float x = atof(splitline[1].c_str());
+					float y = atof(splitline[2].c_str());
+					float z = atof(splitline[3].c_str());
+					float r = atof(splitline[4].c_str());
+					float g = atof(splitline[5].c_str());
+					float b = atof(splitline[6].c_str());
+
+					Transformation point_trans(mat_stack);
+					PointLight* pt = new PointLight(glm::vec3(x,y,z),glm::vec3(r,g,b),point_trans);
+					s.add_light(pt);
+				}
+
+				// camera lookfromx lookfromy lookfromz lookatx lookaty lookatz upx upy upz fov
+				else if(!splitline[0].compare("camera")){
+					float from_x = atof(splitline[1].c_str());
+					float from_y = atof(splitline[2].c_str());
+					float from_z = atof(splitline[3].c_str());
+					float to_x = atof(splitline[4].c_str());
+					float to_y = atof(splitline[5].c_str());
+					float to_z = atof(splitline[6].c_str());
+					float up_x = atof(splitline[7].c_str());
+					float up_y = atof(splitline[8].c_str());
+					float up_z = atof(splitline[9].c_str());
+					float fov = atof(splitline[10].c_str());
+
+					Camera cam(glm::vec3(from_x,from_y,from_z),glm::vec3(to_x,to_y,to_z),glm::vec3(up_x,up_y,up_z),fov);
+					c = cam;
+				}
+
+				//ambient r g b
+				//  The global ambient color to be added for each object 
+				//  (default is .2,.2,.2)
+				else if(!splitline[0].compare("ambient")) {
+					float r = atof(splitline[1].c_str());
+					float g = atof(splitline[2].c_str());
+					float b = atof(splitline[3].c_str());
+					ka = glm::vec3(r,g,b);
+				}
+
+				//diﬀuse r g b
+				//  speciﬁes the diﬀuse color of the surface.
+				else if(!splitline[0].compare("diffuse")) {
+					float r = atof(splitline[1].c_str());
+					float g = atof(splitline[2].c_str());
+					float b = atof(splitline[3].c_str());
+					kd = glm::vec3(r,g,b);
+				}
+
+				//specular r g b 
+				//  speciﬁes the specular color of the surface.
+				else if(!splitline[0].compare("specular")) {
+					float r = atof(splitline[1].c_str());
+					float g = atof(splitline[2].c_str());
+					float b = atof(splitline[3].c_str());
+					ks = glm::vec3(r,g,b);
+
+					if (!has_reflect_coeff){
+						kr = ks;
+					}
+				}
+
+				//reflection r g b 
+				//  speciﬁes the reflective color of the surface.
+				else if(!splitline[0].compare("reflect")) {
+					float r = atof(splitline[1].c_str());
+					float g = atof(splitline[2].c_str());
+					float b = atof(splitline[3].c_str());
+					kr = glm::vec3(r,g,b);
+					has_reflect_coeff = true;
+					// unsure of command line arg ??
+				}			
+
+				else if(!splitline[0].compare("emission")) {
+					float r = atof(splitline[1].c_str());
+					float g = atof(splitline[2].c_str());
+					float b = atof(splitline[3].c_str());
+					ke = glm::vec3(r,g,b);
+				}
+
+				//shininess s
+				//  speciﬁes the shininess of the surface.
+				else if(!splitline[0].compare("shininess")) {
+					sp = atof(splitline[1].c_str());
+				} 
+
+				//translate x y z
+				//  A translation 3-vector
+				else if(!splitline[0].compare("translate")) {
+					float x = atof(splitline[1].c_str());
+					float y = atof(splitline[2].c_str());
+					float z = atof(splitline[3].c_str());
+					// Update top of matrix stack
+					// Matrix of form
+					// 1 0 0 tx
+					// 0 1 0 ty
+					// 0 0 1 tz
+					// 0 0 0 1
+
+					glm::mat4 translate_mat(1,0,0,0,0,1,0,0,0,0,1,0,x,y,z,1);
+					current_mat = mat_stack.back();
+
+					mat_stack.pop_back();
+					current_mat = current_mat * translate_mat;
+
+					mat_stack.push_back(current_mat);
+				}
+
+				//rotate x y z angle
+				//  Rotate by angle (in degrees) about the given axis as in OpenGL.
+				else if(!splitline[0].compare("rotate")) {
+					float x = atof(splitline[1].c_str());
+					float y = atof(splitline[2].c_str());
+					float z = atof(splitline[3].c_str());
+					float angle = atof(splitline[4].c_str());
+					// Update top of matrix stack
+
+					glm::mat4 rotate_mat = create_rotate(x,y,z,angle);
+					current_mat = mat_stack.back();
+
+					mat_stack.pop_back();
+					current_mat = current_mat * rotate_mat;
+
+					mat_stack.push_back(current_mat);
+				}
+
+				//scale x y z
+				//  Scale by the corresponding amount in each axis (a non-uniform scaling).
+				else if(!splitline[0].compare("scale")) {
+					float x = atof(splitline[1].c_str());
+					float y = atof(splitline[2].c_str());
+					float z = atof(splitline[3].c_str());
+					// Update top of matrix stack
+					// Matrix of form
+					// sx 0  0  0
+					// 0  sy 0  0
+					// 0  0  sz 0
+					// 0  0  0  1
+					glm::mat4 scale_mat(x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1);
+					current_mat = mat_stack.back();
+
+					mat_stack.pop_back();
+					current_mat = current_mat * scale_mat;
+
+					mat_stack.push_back(current_mat);
+				}
+
+				//pushTransform
+				//  Push the current modeling transform on the stack as in OpenGL. 
+				//  You might want to do pushTransform immediately after setting 
+				//   the camera to preserve the “identity” transformation.
+				else if(!splitline[0].compare("pushTransform")) {
+					//Transformation t_copy(current_trans.m);
+
+					current_mat = glm::mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+					mat_stack.push_back(current_mat);
+				}
+
+				//popTransform
+				//  Pop the current transform from the stack as in OpenGL. 
+				//  The sequence of popTransform and pushTransform can be used if 
+				//  desired before every primitive to reset the transformation 
+				//  (assuming the initial camera transformation is on the stack as 
+				//  discussed above).
+				else if(!splitline[0].compare("popTransform")) {
+					mat_stack.pop_back();
+				} else {
+					std::cerr << "Unknown command: " << splitline[0] << std::endl;
+				}
 			} else {
-				std::cerr << "Unknown command: " << splitline[0] << std::endl;
-			}
+				// Parse OBJ file
+				if(!splitline[0].compare("s")){
+					// ignore s commands
+					continue;
+				}
+				else if(!splitline[0].compare("g")){
+					// ignore g commands
+					continue;
+				}
+				else if(!splitline[0].compare("vt")){
+					// ignore vertex texture commands
+					continue;
+				}
+				else if(!splitline[0].compare("usemtl")){
+					// ignore material commands
+					continue;
+				}
+				else if(!splitline[0].compare("v")){
+					// add vertex to list
+					float x = atof(splitline[1].c_str());
+					float y = atof(splitline[2].c_str());
+					float z = atof(splitline[3].c_str());
+					vert_list.push_back(glm::vec3(x,y,z));
+				}
+				else if(!splitline[0].compare("vn")) {
+					// add vertex normal to list
+					OBJ_NORM = true;
+					float x = atof(splitline[1].c_str());
+					float y = atof(splitline[2].c_str());
+					float z = atof(splitline[3].c_str());
+					norm_list.push_back(glm::vec3(x,y,z));
+				}
+				//Multiple kinds of face formats. This handles a few of them.
+				else if(!splitline[0].compare("f")) {
+					int a_point,b_point,c_point,a_point_norm,b_point_norm,c_point_norm;
+					glm::vec3 a,b,c;
+					// add triangle to list, four different parsing options:
+					// v for vertex, t for vextex texture (ignored), n for normal
+					// face with vertecies v
+					// face with vertex textures v/t
+					// face with vertex norms v//n
+					// face with text and norms v/t/n
+					int count = slash_count(splitline[1]);
+					if (count == 1) {
+						// case: f v/t
+						OBJ_NORM = false;
+						int pos = splitline[1].find("/");
+						a_point = atoi(splitline[1].substr(0,pos).c_str());
+						pos = splitline[2].find("/");
+						b_point = atoi(splitline[2].substr(0,pos).c_str());
+						pos = splitline[3].find("/");
+						c_point = atoi(splitline[3].substr(0,pos).c_str());
+					}
+					else if (splitline[1].find("//") != std::string::npos) {
+						// case: f v//n
+						OBJ_NORM = true;
+						int pos = splitline[1].find("/");
+						a_point = atoi(splitline[1].substr(0,pos).c_str());
+						a_point_norm = atoi(splitline[1].substr(pos+2).c_str());
+						pos = splitline[2].find("/");
+						b_point = atoi(splitline[2].substr(0,pos).c_str());
+						b_point_norm = atoi(splitline[2].substr(pos+2).c_str());
 
+						pos = splitline[3].find("/");
+						c_point = atoi(splitline[3].substr(0,pos).c_str());
+						c_point_norm = atoi(splitline[3].substr(pos+2).c_str());
+
+					}
+					else if (count == 2) {
+						// case: f v/t/n
+						OBJ_NORM = true;
+						int pos = splitline[1].find("/");
+						a_point = atoi(splitline[1].substr(0,pos).c_str());
+						pos = splitline[1].find("/",pos+1);
+						a_point_norm = atoi(splitline[1].substr(pos+1).c_str());
+
+						pos = splitline[2].find("/");
+						b_point = atoi(splitline[2].substr(0,pos).c_str());
+						pos = splitline[2].find("/",pos+1);
+						b_point_norm = atoi(splitline[2].substr(pos+1).c_str());
+
+						pos = splitline[3].find("/");
+						c_point = atoi(splitline[3].substr(0,pos).c_str());
+						pos = splitline[3].find("/",pos+1);
+						c_point_norm = atoi(splitline[3].substr(pos+1).c_str());
+
+					} else {
+						// case: f v
+						OBJ_NORM = false;
+						a_point = atoi(splitline[1].c_str());
+						b_point = atoi(splitline[2].c_str());
+						c_point = atoi(splitline[3].c_str());
+					}
+					//Make the points of triangle a,b,c.
+					a = vert_list[a_point];
+					b = vert_list[b_point];
+					c = vert_list[c_point];
+
+					glm::vec3 a_norm, b_norm, c_norm;
+					if (OBJ_NORM) {
+						a_norm = norm_list[a_point_norm];
+						b_norm = norm_list[b_point_norm];
+						c_norm = norm_list[c_point_norm];
+					} else {
+						a_norm.x = 0,a_norm.y = 0,a_norm.z = 0;
+						b_norm.x = 0,b_norm.y = 0,b_norm.z = 0;
+						c_norm.x = 0,c_norm.y = 0,c_norm.z = 0;
+					}
+
+					// Assuming that we can just use the matrix stack, but leave it as id_mat
+					Transformation tri_trans(mat_stack);
+
+					// Vertices of triangle.
+					glm::vec3 vert_1 = tri_trans.world_point(vert_list[a_point]);
+					glm::vec3 vert_2 = tri_trans.world_point(vert_list[b_point]);
+					glm::vec3 vert_3 = tri_trans.world_point(vert_list[c_point]);
+
+					// Normals of triangle.
+					glm::vec3 norm_1 = tri_trans.world_normal(norm_list[a_point]);
+					glm::vec3 norm_2 = tri_trans.world_normal(norm_list[b_point]);
+					glm::vec3 norm_3 = tri_trans.world_normal(norm_list[c_point]);
+
+					// Make pointer to this new triangle.
+					// Hard coding BRDF
+					ka.x = .3; ka.y = .3; ka.z = .3;
+					kd.x = .1; kd.y = .1; kd.z = .1;
+					ks.x = .1; kd.y = .1; kd.z = .1;
+					kr.x = .2; kr.y = .2; kr.z = .2;
+					sp = 30;
+					Triangle *t = new Triangle(vert_1,vert_2,vert_3,ka,kd,ks,kr,ke,sp);
+					// Add triangle to scene.
+					s.add_shape(t);
+
+					
+
+					//resize vector. Obj files don't necessarily tell you how many faces there are going to be.
+					// float n = glm::max(a_point,glm::max(b_point,c_point));
+					// if(n+1>connected_triangles.size()){
+					// 	connected_triangles.resize(n+1); //+1 because numbering for obj starts at 1.
+					// }
+				}
+				else {
+					std::cout << "Unknown command: " << splitline[0] << std::endl;
+				}
+
+			}
 		}
 	}
 	// End Arg Parser
