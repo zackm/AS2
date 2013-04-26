@@ -64,7 +64,7 @@ void Scene::render(Camera c, Film kodak) {
 		// for progress indicator
 		if (i/1.0f > counter) {
 			system("clear");
-			cout << float(float(i) / width) << "% " << endl;
+			cout << float(float(i) / width) * 100 << "% " << endl;
 			counter += chunk;
 		}
 

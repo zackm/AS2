@@ -140,9 +140,19 @@ int main(int argc, char *argv[]) {
 		float g = .6;
 		float b = .6;
 
+		glm::mat4 translate_mat(1,0,0,0,0,1,0,0,0,0,1,0,.5,1,3,1);
+		current_mat = mat_stack.back();
+
+		mat_stack.pop_back();
+		current_mat = current_mat * translate_mat;
+
+		mat_stack.push_back(current_mat);
+
 		Transformation directional_trans(mat_stack);
 		DirectionalLight* dl = new DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b),directional_trans);
 		s.add_light(dl);
+
+		mat_stack.pop_back();
 	}
 
 	// Arg Parser
