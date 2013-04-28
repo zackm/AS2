@@ -52,6 +52,8 @@ const float pi = 3.14159265359;
 
 bool OBJ_ON = false; // flag for OBJ input file parsing
 
+bool flag = true; // temp flag for creating one sphere
+
 /*
 Simply creates the 4 by 4 rotation matrix where [x,y,z]
 is the axis of rotation and angle is the angle in degrees
@@ -83,8 +85,38 @@ int slash_count(string s) {
 	return count;
 }
 
+/*
+Method to set the camera position using the max and min points in the object.
+*/
+void set_camera_and_perspective(Camera c, glm::vec3 max, glm::vec3 min) {
+	glm::vec3 center,camera_pos,camera_up;
+
+	float diameter = glm::max(glm::max(max.x-min.x,max.z-min.z),max.y-min.y);
+
+	center.x = (max.x+min.x)/2.0f;
+	center.y = (max.y+min.y)/2.0f;
+	center.z = (max.z+min.z)/2.0f;
+	camera_pos.x = camera_pos.y = 0;
+	camera_pos.z = 0;
+
+	camera_up.x = camera_up.z = 0;
+	camera_up.y = 1.0f;
+
+	float fov = 90;
+
+	center.x = 0; center.y = 0, center.z = -3;
+	// from, to .up
+	c.set_args(camera_pos,center,camera_up,fov);
+
+	cout<<"Max:"<<max.x<<", "<<max.y<<", "<<max.z<<endl;
+	cout<<"Min:"<<min.x<<", "<<min.y<<", "<<min.z<<endl;
+	cout<<"camera pos = "<<camera_pos.x<<", "<<camera_pos.y<<", "<<camera_pos.z<<endl;
+	cout<<"center = "<<center.x<<", "<<center.y<<", "<<center.z<<endl;
+	// exit(0);
+}
+
 int main(int argc, char *argv[]) {
-		int WIDTH = 400;
+	int WIDTH = 400;
 	int HEIGHT = 400;
 
 	Scene s;
@@ -96,6 +128,9 @@ int main(int argc, char *argv[]) {
 	vector<glm::vec3> vertexnorm_n;
 	vector<glm::mat4> mat_stack;
 	glm::mat4 current_mat;
+
+	glm::vec3 max(0,0,0); // need to set these to max float, min float probably
+	glm::vec3 min(0,0,0);
 
 	//default material properties
 	glm::vec3 ka(.2f, .2f, .2f);
@@ -133,26 +168,16 @@ int main(int argc, char *argv[]) {
 		cout<<"OBJ Input File Detected."<<endl;
 		OBJ_ON = true;
 		// Hard code a light for OBJ
-		float x = 0;
-		float y = 0;
-		float z = -3;
-		float r = .6;
-		float g = .6;
-		float b = .6;
-
-		glm::mat4 translate_mat(1,0,0,0,0,1,0,0,0,0,1,0,.5,1,3,1);
-		current_mat = mat_stack.back();
-
-		mat_stack.pop_back();
-		current_mat = current_mat * translate_mat;
-
-		mat_stack.push_back(current_mat);
-
+		float x = 1;
+		float y = 1;
+		float z = 6;
+		float r = .9;
+		float g = .9;
+		float b = .9;
 		Transformation directional_trans(mat_stack);
 		DirectionalLight* dl = new DirectionalLight(glm::vec3(x,y,z),glm::vec3(r,g,b),directional_trans);
 		s.add_light(dl);
 
-		mat_stack.pop_back();
 	}
 
 	// Arg Parser
@@ -512,6 +537,18 @@ int main(int argc, char *argv[]) {
 					float y = atof(splitline[2].c_str());
 					float z = atof(splitline[3].c_str());
 					vert_list.push_back(glm::vec3(x,y,z));
+
+					// compare current vertex with max and min
+					if (x > max.x && y > max.y && z > max.z) {
+						max.x = x;
+						max.y = y;
+						max.z = z;
+					}
+					if (x < min.x && y < min.y && z < min.z) {
+						min.x = x;
+						min.y = y;
+						min.z = z;
+					}
 				}
 				else if(!splitline[0].compare("vn")) {
 					// add vertex normal to list
@@ -613,16 +650,22 @@ int main(int argc, char *argv[]) {
 
 					// Make pointer to this new triangle.
 					// Hard coding BRDF
-					ka.x = .3; ka.y = .3; ka.z = .3;
-					kd.x = .1; kd.y = .1; kd.z = .1;
-					ks.x = .1; kd.y = .1; kd.z = .1;
+					ka.x = .1; ka.y = .3; ka.z = .3;
+					kd.x = .3; kd.y = .3; kd.z = .8;
+					ks.x = .3; kd.y = .3; kd.z = .3;
 					kr.x = .2; kr.y = .2; kr.z = .2;
 					sp = 30;
-					Triangle *t = new Triangle(vert_1,vert_2,vert_3,ka,kd,ks,kr,ke,sp);
+					Triangle *t = new Triangle(vert_1,vert_2,vert_3,ka,kd,ks,kr,ke,sp,norm_1,norm_2,norm_3);
 					// Add triangle to scene.
 					s.add_shape(t);
 
-					
+					// temp test
+					if (flag) {
+						float x = 0,y = 0, z = 0, r = 2;
+						Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,ke,sp,tri_trans);
+						s.add_shape(sph);
+						flag = false;
+					}
 
 					//resize vector. Obj files don't necessarily tell you how many faces there are going to be.
 					// float n = glm::max(a_point,glm::max(b_point,c_point));
@@ -638,6 +681,26 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	// End Arg Parser
+
+	// Set camera position if not specified (OBJ files)
+	if (OBJ_ON) {
+		// set_camera_and_perspective(c,max,min);
+
+		// working camera basics, later set auto function
+		float from_x = 0;
+		float from_y = -2;
+		float from_z = 7;
+		float to_x = 0;
+		float to_y = 0;
+		float to_z = -3;
+		float up_x = 0;
+		float up_y = 1;
+		float up_z = 0;
+		float fov = 90;
+
+		Camera cam(glm::vec3(from_x,from_y,from_z),glm::vec3(to_x,to_y,to_z),glm::vec3(up_x,up_y,up_z),fov);
+		c = cam;
+	}
 
 	int BitsPerPixel = 24;
 	Film canvas = Film(WIDTH, HEIGHT, BitsPerPixel, output_name);

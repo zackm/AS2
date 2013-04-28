@@ -25,6 +25,13 @@ Camera::Camera(glm::vec3 pos,glm::vec3 dir,glm::vec3 up_arg,float fov_arg){
 	fov = fov_arg;
 }
 
+void Camera::set_args(glm::vec3 pos,glm::vec3 dir,glm::vec3 up_arg,float fov_arg){
+	position = pos;
+	direction = dir-pos;
+	up = up_arg;
+	fov = fov_arg;
+}
+
 void Camera::cornerVectors(glm::vec3* UL,glm::vec3* UR,glm::vec3* LL,glm::vec3* LR,float scene_width,float scene_height){
 	float world_height = 2*glm::tan(pi*(fov/2)/180); //convert to radians
 	float world_width = world_height*(scene_width/scene_height);
