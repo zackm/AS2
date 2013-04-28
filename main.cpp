@@ -116,8 +116,8 @@ void set_camera_and_perspective(Camera c, glm::vec3 max, glm::vec3 min) {
 }
 
 int main(int argc, char *argv[]) {
-	int WIDTH = 400;
-	int HEIGHT = 400;
+	int WIDTH = 500;
+	int HEIGHT = 500;
 
 	Scene s;
 	Camera c;
@@ -663,7 +663,7 @@ int main(int argc, char *argv[]) {
 					if (flag) {
 						float x = 0,y = 0, z = 0, r = 2;
 						Sphere* sph = new Sphere(glm::vec3(x,y,z),r,ka,kd,ks,kr,ke,sp,tri_trans);
-						s.add_shape(sph);
+						//s.add_shape(sph);
 						flag = false;
 					}
 
@@ -687,12 +687,12 @@ int main(int argc, char *argv[]) {
 		// set_camera_and_perspective(c,max,min);
 
 		// working camera basics, later set auto function
-		float from_x = 0;
-		float from_y = -2;
-		float from_z = 7;
-		float to_x = 0;
-		float to_y = 0;
-		float to_z = -3;
+		float from_x = .25;
+		float from_y = .25;
+		float from_z = 1.25;
+		float to_x = 0.25;
+		float to_y = 0.25;
+		float to_z = 0;
 		float up_x = 0;
 		float up_y = 1;
 		float up_z = 0;

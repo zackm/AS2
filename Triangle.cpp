@@ -8,6 +8,8 @@
 #pragma once
 #include "Transformation.h"
 
+#include <iostream>
+
 using namespace std;
 
 Triangle::Triangle(glm::vec3 arg_a,glm::vec3 arg_b,glm::vec3 arg_c,glm::vec3 ka,glm::vec3 d,glm::vec3 s,

@@ -114,7 +114,7 @@ void Scene::trace(Ray &r, glm::vec3 *color) {
 				local = current_local;
 				no_hit = false;
 				best_shape = s;
-				view_pos = r.position;
+				view_pos = r.direction;
 				brdf = s->get_brdf();
 			}
 		}
@@ -181,7 +181,7 @@ void Scene::generateReflectionRay(LocalGeo &local,Ray* ray){
 	}
 
 	ray->direction = reflection;
-	ray->position = local.point;
+	ray->direction = local.point;
 	ray->t_min = .001;
 	ray->t_max = std::numeric_limits<float>::infinity();
 }
