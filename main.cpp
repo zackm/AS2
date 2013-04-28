@@ -650,9 +650,9 @@ int main(int argc, char *argv[]) {
 
 					// Make pointer to this new triangle.
 					// Hard coding BRDF
-					ka.x = .1; ka.y = .3; ka.z = .3;
-					kd.x = .3; kd.y = .3; kd.z = .8;
-					ks.x = .3; kd.y = .3; kd.z = .3;
+					ka.x = .1; ka.y = .3; ka.z = .5;
+					kd.x = .3; kd.y = .3; kd.z = .9;
+					ks.x = .3; kd.y = .3; kd.z = .5;
 					kr.x = .2; kr.y = .2; kr.z = .2;
 					sp = 30;
 					Triangle *t = new Triangle(vert_1,vert_2,vert_3,ka,kd,ks,kr,ke,sp,norm_1,norm_2,norm_3);
@@ -688,8 +688,8 @@ int main(int argc, char *argv[]) {
 
 		// working camera basics, later set auto function
 		float from_x = .25;
-		float from_y = .25;
-		float from_z = 1.25;
+		float from_y = .05;
+		float from_z = .65;
 		float to_x = 0.25;
 		float to_y = 0.25;
 		float to_z = 0;
